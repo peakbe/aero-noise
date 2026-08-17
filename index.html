@@ -21,6 +21,15 @@
 
     <canvas id="mcdu-rose" width="220" height="220"></canvas>
 
+    <!-- ✔ Sélecteur d’aéroport intégré dans le MCDU -->
+    <div class="mcdu-box">
+      APT :
+      <select id="airport-select" class="mcdu-select">
+        <option value="EBLG">EBLG — Liège</option>
+        <option value="EBCI">EBCI — Charleroi</option>
+      </select>
+    </div>
+
   </div>
 
 
@@ -29,6 +38,7 @@
   <div id="map"></div>
   <button id="btn-recenter">RECENTRER</button>
 
+  <!-- ❌ Ancien sélecteur supprimé (il passait derrière la carte)
   <div>
     <label for="airport-select">Aéroport :</label>
     <select id="airport-select">
@@ -36,6 +46,7 @@
       <option value="EBCI">EBCI — Charleroi</option>
     </select>
   </div>
+  -->
 
   <div class="panel">
     <h2>METAR</h2>
