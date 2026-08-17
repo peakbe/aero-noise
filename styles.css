@@ -142,3 +142,53 @@ select:focus {
   padding: 2px 0;
   font-size: 12px;
 }
+/* =====================================================
+   ND Airbus — Layout PRO+++
+===================================================== */
+
+.nd-layout {
+  display: grid;
+  grid-template-columns: 2fr 1.2fr;
+  height: calc(100vh - 60px);
+  overflow: hidden;
+}
+
+.nd-left {
+  position: relative;
+  border-right: 1px solid #0ff;
+  background: #000;
+}
+
+.nd-right {
+  overflow-y: auto;
+  background: #050505;
+  padding: 10px;
+}
+
+/* Carte ND */
+.nd-map {
+  width: 100%;
+  height: 70vh;
+}
+
+/* Sélecteur d’aéroport */
+.nd-controls {
+  padding: 10px;
+  background: #111;
+  border-top: 1px solid #0ff;
+}
+
+/* METAR / TAF monospace */
+.mono {
+  font-family: monospace;
+  white-space: pre-wrap;
+}
+
+/* FIDS style */
+.fids-list div {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px dashed #222;
+  padding: 4px 0;
+  font-size: 12px;
+}
