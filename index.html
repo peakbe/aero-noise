@@ -63,44 +63,60 @@
 
 <body>
 
-  <!-- Carte ND / Radar -->
-  <div id="map"></div>
+  <!-- Bandeau titre -->
+  <header class="nd-header">
+    <div class="nd-title">ND / METAR / FIDS — EBLG / EBCI</div>
+    <div class="nd-subtitle">Aero Noise Dashboard — Airbus style</div>
+  </header>
 
-  <!-- Bouton Recentrer -->
-  <button id="btn-recenter" class="float-btn">Recentrer</button>
+  <!-- Layout principal -->
+  <main class="nd-layout">
 
-  <!-- Sélecteur d’aéroport -->
-  <div class="panel">
-    <label for="airport-select">Aéroport :</label>
-    <select id="airport-select">
-      <option value="EBLG">EBLG — Liège</option>
-      <option value="EBCI">EBCI — Charleroi</option>
-    </select>
-  </div>
+    <!-- Colonne gauche : ND / carte -->
+    <section class="nd-left">
+      <div id="map" class="nd-map"></div>
+      <button id="btn-recenter" class="float-btn">RECENTER</button>
 
-  <!-- METAR / TAF -->
-  <div class="panel">
-    <div class="section-title">METAR</div>
-    <div id="metar-box" class="data-box">Chargement…</div>
+      <div class="nd-controls">
+        <label for="airport-select">Aéroport :</label>
+        <select id="airport-select">
+          <option value="EBLG">EBLG — Liège</option>
+          <option value="EBCI">EBCI — Charleroi</option>
+        </select>
+      </div>
+    </section>
 
-    <div class="section-title">TAF</div>
-    <div id="taf-box" class="data-box">Chargement…</div>
-  </div>
+    <!-- Colonne droite : METAR / TAF / WX / FIDS -->
+    <section class="nd-right">
 
-  <!-- Météo OpenWeather -->
-  <div class="panel">
-    <div class="section-title">Météo</div>
-    <div id="weather-box" class="data-box">Chargement…</div>
-  </div>
+      <div class="panel">
+        <div class="section-title">METAR</div>
+        <div id="metar-box" class="data-box mono"></div>
+      </div>
 
-  <!-- FIDS AirLabs -->
-  <div class="panel">
-    <div class="section-title">Arrivées</div>
-    <div id="arrivals-box" class="data-box">Chargement…</div>
+      <div class="panel">
+        <div class="section-title">TAF</div>
+        <div id="taf-box" class="data-box mono"></div>
+      </div>
 
-    <div class="section-title">Départs</div>
-    <div id="departures-box" class="data-box">Chargement…</div>
-  </div>
+      <div class="panel">
+        <div class="section-title">WX (OpenWeather)</div>
+        <div id="weather-box" class="data-box"></div>
+      </div>
+
+      <div class="panel">
+        <div class="section-title">Arrivées (AirLabs)</div>
+        <div id="arrivals-box" class="data-box fids-list"></div>
+      </div>
+
+      <div class="panel">
+        <div class="section-title">Départs (AirLabs)</div>
+        <div id="departures-box" class="data-box fids-list"></div>
+      </div>
+
+    </section>
+
+  </main>
 
   <!-- Scripts -->
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -108,4 +124,5 @@
   <script type="module" src="app.js"></script>
 
 </body>
+
 </html>
