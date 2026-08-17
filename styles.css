@@ -204,3 +204,11 @@ select:focus {
   font-family: monospace;
 }
 
+.mcdu-select {
+  width: 100%;
+  background: #000;
+  color: #00e5ff;
+  border: 1px solid #00e5ff;
+  padding: 4px;
+  font-family: monospace;
+}
