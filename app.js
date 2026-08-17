@@ -1,6 +1,6 @@
 // app.js — logique ND / météo / vols PRO+++
 
-import { initMap, resetMapView, addAirportMarker } from "./map.js";
+import { initMap, resetMapView, addAirportMarker, updateSono } from "./map.js";
 
 // =====================================================
 // 1) INITIALISATION
