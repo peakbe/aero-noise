@@ -190,4 +190,17 @@ select:focus {
   z-index: 99999; /* ✔ Toujours au-dessus */
 }
 
+/* =====================================================
+   Labels SONO — ND Airbus PRO+++
+===================================================== */
+
+.sono-label span {
+  display: inline-block;
+  padding: 1px 4px;
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid #00e5ff;
+  color: #00e5ff;
+  font-size: 10px;
+  font-family: monospace;
+}
 
