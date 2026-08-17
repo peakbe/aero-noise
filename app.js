@@ -24,7 +24,7 @@ function initUI() {
     btn.addEventListener("click", () => resetMapView());
   }
 
-  // Sélecteur d’aéroport (si présent dans ton HTML)
+  // Sélecteur d’aéroport
   const selector = document.getElementById("airport-select");
   if (selector) {
     selector.addEventListener("change", (e) => {
@@ -33,7 +33,7 @@ function initUI() {
   }
 }
 
-// Bouton REFRESH (recharge METAR/TAF/WX/FIDS)
+// Bouton REFRESH
 document.getElementById("btn-refresh").addEventListener("click", () => {
   loadAirport(window.currentAirportKey);
 });
@@ -53,14 +53,14 @@ document.getElementById("btn-sono").addEventListener("click", () => {
 });
 
 // =====================================================
-// 3) Charger un aéroport (METAR, TAF, météo, vols)
+// 3) Charger un aéroport
 // =====================================================
 
 async function loadAirport(key) {
   try {
-    setCurrentAirport(key);     // met à jour la carte
-    resetMapView();             // recentre automatiquement
-    addAirportMarker(key);      // ajoute marker
+    setCurrentAirport(key);
+    resetMapView();
+    addAirportMarker(key);
 
     await Promise.all([
       loadWeather(key),
@@ -72,16 +72,19 @@ async function loadAirport(key) {
   }
 }
 
+// =====================================================
+// ✔ Version correcte de setCurrentAirport (à garder)
+// =====================================================
+
 export function setCurrentAirport(key) {
   if (!window.airports[key]) return;
 
   window.currentAirportKey = key;
   resetMapView();
 
-  // Si le MCDU n’a pas encore calculé la piste → on attend METAR
   const rwyBox = document.getElementById("mcdu-rwy");
 
-  let rwy = "24"; // valeur fallback
+  let rwy = "24";
   if (rwyBox && rwyBox.textContent.includes("RWY")) {
     rwy = rwyBox.textContent.replace("RWY ", "");
   }
@@ -89,9 +92,8 @@ export function setCurrentAirport(key) {
   updateSono(key, rwy);
 }
 
-
 // =====================================================
-// 4) Charger météo (METAR + TAF + OpenWeather)
+// 4) Charger météo
 // =====================================================
 
 async function loadWeather(key) {
@@ -103,14 +105,13 @@ async function loadWeather(key) {
     updateWeatherUI(data);
     updateMCDU(data);
 
-
   } catch (err) {
     console.error("Erreur météo:", err);
   }
 }
 
 // =====================================================
-// 5) Charger vols AirLabs
+// 5) Charger vols
 // =====================================================
 
 async function loadFlights(key) {
@@ -127,7 +128,7 @@ async function loadFlights(key) {
 }
 
 // =====================================================
-// 6) UI — METAR / TAF / météo
+// 6) UI METAR / TAF / WX
 // =====================================================
 
 function updateWeatherUI(data) {
@@ -135,21 +136,18 @@ function updateWeatherUI(data) {
   const tafBox = document.getElementById("taf-box");
   const weatherBox = document.getElementById("weather-box");
 
-  // METAR
   if (data.metar) {
     metarBox.textContent = data.metar.rawOb || "METAR indisponible";
   } else {
     metarBox.textContent = "METAR indisponible";
   }
 
-  // TAF
   if (data.taf) {
     tafBox.textContent = data.taf.rawTAF || "TAF indisponible";
   } else {
     tafBox.textContent = "TAF indisponible";
   }
 
-  // OpenWeather
   if (data.openWeather) {
     const w = data.openWeather;
     weatherBox.innerHTML = `
@@ -164,7 +162,7 @@ function updateWeatherUI(data) {
 }
 
 // =====================================================
-// 7) UI — Vols AirLabs
+// 7) UI FIDS
 // =====================================================
 
 function updateFlightsUI(data) {
@@ -193,7 +191,7 @@ function updateFlightsUI(data) {
 }
 
 // =====================================================
-// MCDU — Rose des vents + RWY + tendances
+// MCDU — WIND / RWY / TAF / ROSE ND
 // =====================================================
 
 function updateMCDU(data) {
@@ -222,12 +220,11 @@ function updateMCDU(data) {
 
   drawWindRose(wdir);
 
-  // 🔥 Ajout SONO dynamique
   updateSono(window.currentAirportKey, rwy);
 }
 
 // =====================================================
-// Calcul RWY en fonction du vent
+// RWY FROM WIND
 // =====================================================
 
 function computeRunwayFromWind(wdir) {
@@ -236,7 +233,7 @@ function computeRunwayFromWind(wdir) {
 }
 
 // =====================================================
-// Dessin rose des vents ND Airbus
+// ROSE ND AIRBUS
 // =====================================================
 
 function drawWindRose(wdir) {
@@ -245,26 +242,22 @@ function drawWindRose(wdir) {
 
   ctx.clearRect(0, 0, 220, 220);
 
-  // Cercle ND
   ctx.strokeStyle = "#00e5ff";
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.arc(110, 110, 90, 0, Math.PI * 2);
   ctx.stroke();
 
-  // Axe Nord
   ctx.beginPath();
   ctx.moveTo(110, 20);
   ctx.lineTo(110, 200);
   ctx.stroke();
 
-  // Axe Est-Ouest
   ctx.beginPath();
   ctx.moveTo(20, 110);
   ctx.lineTo(200, 110);
   ctx.stroke();
 
-  // Vent
   if (wdir !== undefined) {
     const rad = (wdir - 90) * Math.PI / 180;
     const x = 110 + Math.cos(rad) * 70;
