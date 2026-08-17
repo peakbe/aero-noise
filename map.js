@@ -58,6 +58,57 @@ export function addAirportMarker(key) {
     .addTo(map)
     .bindPopup(`${ap.icao}`);
 }
+// =====================================================
+// AEROPORTS — données complètes (runways + sonomètres)
+// =====================================================
+
+const AIRPORTS = {
+  EBCI: {
+    name: "Brussels South Charleroi",
+    city: "Charleroi",
+    lat: 50.4592,
+    lon: 4.4538,
+
+    runways: [
+      { id: "24", heading: 240, label: "Piste 24" },
+      { id: "06", heading: 60,  label: "Piste 06" }
+    ],
+
+    sonometers: [
+      { id:"F118", address:"Rue Piconette 1, Sombreffe", lat:50.5052667, lon:4.6111806 },
+      { id:"F109", address:"Chaussée de Charleroi 265, Sombreffe", lat:50.4903528, lon:4.5623889 },
+      ...
+    ],
+
+    conditions: {
+      "24": { green:[...], red:[] },
+      "06": { green:[...], red:[...] }
+    }
+  },
+
+  EBLG: {
+    name: "Liège Airport",
+    city: "Liège",
+    lat: 50.6374,
+    lon: 5.4432,
+
+    runways: [
+      { id: "22", heading: 220, label: "Piste 22" },
+      { id: "04", heading: 40,  label: "Piste 04" }
+    ],
+
+    sonometers: [
+      { id:"F017", address:"Rue de la Pommeraie, 4690 Wonck", lat:50.7648833, lon:5.6306056 },
+      { id:"F001", address:"Rue Franquet 15, Houtain", lat:50.7380444, lon:5.6088333 },
+      ...
+    ],
+
+    conditions: {
+      "22": { green:[...], red:[] },
+      "04": { green:[...], red:[...] }
+    }
+  }
+};
 
 // =====================================================
 // SONOMETRES — ND Airbus PRO+++ avec labels
