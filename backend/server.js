@@ -411,65 +411,48 @@ app.get(
 );
 
 /* =====================================================
-   ENDPOINT VOLS
+   ENDPOINT VOLS PRO+++
 ===================================================== */
 
-app.get(
-  "/api/flights/:airport",
-  async (req, res) => {
+app.get("/api/flights/:airport", async (req, res) => {
+  try {
 
-    try {
+    const airport = AIRPORTS[req.params.airport.toUpperCase()];
 
-      const airport =
-        AIRPORTS[
-          req.params.airport.toUpperCase()
-        ];
-
-      if (!airport) {
-        return res
-          .status(404)
-          .json({
-            error: "Aéroport inconnu"
-          });
-      }
-
-
-      const schedules =
-        await getAirLabsSchedules(
-          airport
-        );
-
-
-      res.json({
-
-        airport: airport.icao,
-
-        arrivals:
-          schedules.arrivals,
-
-        departures:
-          schedules.departures,
-
-        updatedAt:
-          new Date().toISOString()
-
+    if (!airport) {
+      return res.status(404).json({
+        error: "Aéroport inconnu"
       });
-
-    } catch (error) {
-
-      console.error(error);
-
-      res
-        .status(500)
-        .json({
-          error: error.message
-        });
-
     }
 
-  }
-);
+    const schedules = await getAirLabsSchedules(airport);
 
+    // Sécurisation PRO+++
+    const arrivals = Array.isArray(schedules?.arrivals)
+      ? schedules.arrivals
+      : [];
+
+    const departures = Array.isArray(schedules?.departures)
+      ? schedules.departures
+      : [];
+
+    res.json({
+      airport: airport.icao,
+      arrivals,
+      departures,
+      updatedAt: new Date().toISOString()
+    });
+
+  } catch (error) {
+
+    console.error("Erreur endpoint flights:", error);
+
+    res.status(500).json({
+      error: "Erreur interne AirLabs"
+    });
+
+  }
+});
 
 /* =====================================================
    HEALTH CHECK
