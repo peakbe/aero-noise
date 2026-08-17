@@ -241,3 +241,45 @@ function drawWindRose(wdir) {
     ctx.stroke();
   }
 }
+
+// =====================================================
+// SONOMETRES — affichage dynamique PRO+++
+// =====================================================
+
+let sonoLayer = L.layerGroup();
+
+export function updateSono(airportKey, activeRunway) {
+  if (!map) return;
+
+  sonoLayer.clearLayers();
+
+  const ap = AIRPORTS[airportKey];
+  if (!ap) return;
+
+  const sonos = ap.sonometers || [];
+  const cond = ap.conditions?.[activeRunway] || { green: [], red: [] };
+
+  sonos.forEach(s => {
+    const isGreen = cond.green.includes(s.id);
+    const isRed   = cond.red.includes(s.id);
+
+    const color = isGreen ? "#32ff7e" : isRed ? "#ff0033" : "#00e5ff";
+
+    const marker = L.circleMarker([s.lat, s.lon], {
+      radius: 8,
+      color,
+      weight: 2,
+      fillColor: color,
+      fillOpacity: 0.6
+    }).bindPopup(`
+      <b>${s.id}</b><br>
+      ${s.address}<br>
+      <b>${isGreen ? "GREEN" : isRed ? "RED" : "NEUTRAL"}</b>
+    `);
+
+    sonoLayer.addLayer(marker);
+  });
+
+  sonoLayer.addTo(map);
+}
+
