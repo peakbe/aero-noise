@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: dashboard-backend
+    env: node
+    region: frankfurt
+    plan: free
+    rootDir: backend
+    buildCommand: "npm install"
+    startCommand: "npm start"
+    autoDeploy: true
+    envVars:
+      NODE_VERSION: 20
