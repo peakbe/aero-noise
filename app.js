@@ -53,6 +53,24 @@ async function loadAirport(key) {
   }
 }
 
+export function setCurrentAirport(key) {
+  if (!window.airports[key]) return;
+
+  window.currentAirportKey = key;
+  resetMapView();
+
+  // Si le MCDU n’a pas encore calculé la piste → on attend METAR
+  const rwyBox = document.getElementById("mcdu-rwy");
+
+  let rwy = "24"; // valeur fallback
+  if (rwyBox && rwyBox.textContent.includes("RWY")) {
+    rwy = rwyBox.textContent.replace("RWY ", "");
+  }
+
+  updateSono(key, rwy);
+}
+
+
 // =====================================================
 // 4) Charger météo (METAR + TAF + OpenWeather)
 // =====================================================
@@ -164,7 +182,6 @@ function updateMCDU(data) {
   const rwyBox = document.getElementById("mcdu-rwy");
   const trendBox = document.getElementById("mcdu-trend");
 
-  // --- METAR WIND ---
   const wdir = data.metar?.wdir;
   const wspd = data.metar?.wspd;
 
@@ -172,21 +189,22 @@ function updateMCDU(data) {
     ? `WIND ${wdir}° / ${wspd}KT`
     : "WIND ---";
 
-  // --- RWY RECOMMANDÉE ---
+  let rwy = "---";
   if (wdir !== undefined) {
-    const rwy = computeRunwayFromWind(wdir);
+    rwy = computeRunwayFromWind(wdir);
     rwyBox.textContent = `RWY ${rwy}`;
   } else {
     rwyBox.textContent = "RWY ---";
   }
 
-  // --- TENDANCES TAF ---
   const taf = data.taf?.rawTAF || "";
   const trends = taf.match(/(BECMG|TEMPO|PROB\d+)/g);
   trendBox.textContent = trends ? trends.join(" ") : "NO TREND";
 
-  // --- ROSE DES VENTS ---
   drawWindRose(wdir);
+
+  // 🔥 Ajout SONO dynamique
+  updateSono(window.currentAirportKey, rwy);
 }
 
 // =====================================================
