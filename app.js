@@ -1,60 +1,137 @@
-// map.js — carte ND / radar PRO+++
+// app.js — logique ND / météo / vols PRO+++
 
-// ⚙️ Initialisation carte
-let map;
-window.airports = {
-  EBCI: { icao: "EBCI", lat: 50.4592, lon: 4.4538 },
-  EBLG: { icao: "EBLG", lat: 50.6374, lon: 5.4432 }
-};
-window.currentAirportKey = "EBLG"; // valeur par défaut
+import { initMap, resetMapView, setCurrentAirport, addAirportMarker } from "./map.js";
 
-export function initMap() {
-  if (map) return;
+// =====================================================
+// 1) INITIALISATION
+// =====================================================
 
-  const defaultCenter = [50.5, 4.7];
-  const defaultZoom = 8;
+document.addEventListener("DOMContentLoaded", () => {
+  initMap();
+  initUI();
+  loadAirport("EBLG"); // aéroport par défaut
+});
 
-  map = L.map("map", {
-    zoomControl: true,
-    minZoom: 5,
-    maxZoom: 17
-  }).setView(defaultCenter, defaultZoom);
+// =====================================================
+// 2) UI — Boutons, sélection aéroport
+// =====================================================
 
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: "© OpenStreetMap",
-    maxZoom: 19
-  }).addTo(map);
+function initUI() {
 
-  window.map = map;
-}
+  // Bouton recentrer
+  const btn = document.getElementById("btn-recenter");
+  if (btn) {
+    btn.addEventListener("click", () => resetMapView());
+  }
 
-// 🧭 Recentrer sur l’aéroport actif
-export function resetMapView() {
-  if (!map) return;
-
-  const key = window.currentAirportKey;
-  const ap = window.airports?.[key];
-
-  if (ap) {
-    map.setView([ap.lat, ap.lon], 13);
-  } else {
-    map.setView([50.5, 4.7], 8);
+  // Sélecteur d’aéroport (si présent dans ton HTML)
+  const selector = document.getElementById("airport-select");
+  if (selector) {
+    selector.addEventListener("change", (e) => {
+      loadAirport(e.target.value);
+    });
   }
 }
 
-// 📍 Mettre à jour l’aéroport actif (depuis app.js)
-export function setCurrentAirport(key) {
-  if (!window.airports[key]) return;
-  window.currentAirportKey = key;
-  resetMapView();
+// =====================================================
+// 3) Charger un aéroport (METAR, TAF, météo, vols)
+// =====================================================
+
+async function loadAirport(key) {
+  try {
+    setCurrentAirport(key);     // met à jour la carte
+    resetMapView();             // recentre automatiquement
+    addAirportMarker(key);      // ajoute marker
+
+    await Promise.all([
+      loadWeather(key),
+      loadFlights(key)
+    ]);
+
+  } catch (err) {
+    console.error("Erreur loadAirport:", err);
+  }
 }
 
-// ✈️ Exemple d’ajout de marker METAR/TAF
-export function addAirportMarker(key) {
-  const ap = window.airports[key];
-  if (!ap || !map) return;
+// =====================================================
+// 4) Charger météo (METAR + TAF + OpenWeather)
+// =====================================================
 
-  L.marker([ap.lat, ap.lon])
-    .addTo(map)
-    .bindPopup(`${ap.icao}`);
+async function loadWeather(key) {
+  try {
+    const url = `https://dashboard-backend.onrender.com/api/weather/${key}`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    updateWeatherUI(data);
+
+  } catch (err) {
+    console.error("Erreur météo:", err);
+  }
+}
+
+// =====================================================
+// 5) Charger vols AirLabs
+// =====================================================
+
+async function loadFlights(key) {
+  try {
+    const url = `https://dashboard-backend.onrender.com/api/flights/${key}`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    updateFlightsUI(data);
+
+  } catch (err) {
+    console.error("Erreur vols:", err);
+  }
+}
+
+// =====================================================
+// 6) UI — METAR / TAF / météo
+// =====================================================
+
+function updateWeatherUI(data) {
+
+  const metarBox = document.getElementById("metar-box");
+  const tafBox   = document.getElementById("taf-box");
+  const wxBox    = document.getElementById("weather-box");
+
+  if (metarBox) {
+    metarBox.textContent = data.metar?.raw_text || "METAR indisponible";
+  }
+
+  if (tafBox) {
+    tafBox.textContent = data.taf?.raw_text || "TAF indisponible";
+  }
+
+  if (wxBox && data.openWeather) {
+    wxBox.innerHTML = `
+      <div>Temp: ${data.openWeather.temp}°C</div>
+      <div>Vent: ${data.openWeather.wind} km/h</div>
+      <div>Humidité: ${data.openWeather.humidity}%</div>
+    `;
+  }
+}
+
+// =====================================================
+// 7) UI — Vols AirLabs
+// =====================================================
+
+function updateFlightsUI(data) {
+
+  const arrBox = document.getElementById("arrivals-box");
+  const depBox = document.getElementById("departures-box");
+
+  if (arrBox) {
+    arrBox.innerHTML = data.arrivals
+      .map(f => `<div>${f.flight_iata} — ${f.dep_time} → ${f.arr_time}</div>`)
+      .join("") || "Aucune arrivée";
+  }
+
+  if (depBox) {
+    depBox.innerHTML = data.departures
+      .map(f => `<div>${f.flight_iata} — ${f.dep_time}</div>`)
+      .join("") || "Aucun départ";
+  }
 }
