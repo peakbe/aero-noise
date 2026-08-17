@@ -7,6 +7,20 @@ const cors = require("cors");
 const fetch = require("node-fetch"); // obligatoire en CJS
 
 const app = express();
+// CORS PRO+++ compatible GitHub Pages + Render
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type");
+  next();
+});
+
+app.options("*", (req, res) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type");
+  res.sendStatus(200);
+});
 
 app.use(cors({
   origin: "*",
