@@ -64,6 +64,8 @@ async function loadWeather(key) {
     const data = await res.json();
 
     updateWeatherUI(data);
+    updateMCDU(data);
+
 
   } catch (err) {
     console.error("Erreur météo:", err);
