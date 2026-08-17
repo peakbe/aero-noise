@@ -33,6 +33,25 @@ function initUI() {
   }
 }
 
+// Bouton REFRESH (recharge METAR/TAF/WX/FIDS)
+document.getElementById("btn-refresh").addEventListener("click", () => {
+  loadAirport(window.currentAirportKey);
+});
+
+let sonoEnabled = true;
+
+// Bouton SONO ON/OFF
+document.getElementById("btn-sono").addEventListener("click", () => {
+  sonoEnabled = !sonoEnabled;
+
+  if (!sonoEnabled) {
+    if (window.map && window.sonoLayer) window.sonoLayer.clearLayers();
+  } else {
+    const rwy = document.getElementById("mcdu-rwy").textContent.replace("RWY ", "");
+    updateSono(window.currentAirportKey, rwy);
+  }
+});
+
 // =====================================================
 // 3) Charger un aéroport (METAR, TAF, météo, vols)
 // =====================================================
