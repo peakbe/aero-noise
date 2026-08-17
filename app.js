@@ -119,19 +119,31 @@ function updateWeatherUI(data) {
 // =====================================================
 
 function updateFlightsUI(data) {
-
   const arrBox = document.getElementById("arrivals-box");
   const depBox = document.getElementById("departures-box");
 
   if (arrBox) {
-    arrBox.innerHTML = data.arrivals
-      .map(f => `<div>${f.flight_iata} — ${f.dep_time} → ${f.arr_time}</div>`)
+    arrBox.innerHTML = (data.arrivals || [])
+      .map(f => `
+        <div>
+          <span>${f.flight_iata || f.flight_icao || "—"}</span>
+          <span>${f.dep_iata || "??"} → ${f.arr_iata || "??"}</span>
+          <span>${f.arr_time || ""}</span>
+        </div>
+      `)
       .join("") || "Aucune arrivée";
   }
 
   if (depBox) {
-    depBox.innerHTML = data.departures
-      .map(f => `<div>${f.flight_iata} — ${f.dep_time}</div>`)
+    depBox.innerHTML = (data.departures || [])
+      .map(f => `
+        <div>
+          <span>${f.flight_iata || f.flight_icao || "—"}</span>
+          <span>${f.dep_iata || "??"} → ${f.arr_iata || "??"}</span>
+          <span>${f.dep_time || ""}</span>
+        </div>
+      `)
       .join("") || "Aucun départ";
   }
 }
+
