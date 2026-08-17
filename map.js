@@ -42,13 +42,6 @@ export function resetMapView() {
   }
 }
 
-// 📍 Mettre à jour l’aéroport actif (depuis app.js)
-export function setCurrentAirport(key) {
-  if (!window.airports[key]) return;
-  window.currentAirportKey = key;
-  resetMapView();
-}
-
 // ✈️ Exemple d’ajout de marker METAR/TAF
 export function addAirportMarker(key) {
   const ap = window.airports[key];
@@ -158,6 +151,7 @@ const AIRPORTS = {
 // =====================================================
 
 let sonoLayer = L.layerGroup();
+window.sonoLayer = sonoLayer;
 
 export function updateSono(airportKey, activeRunway) {
   if (!map) return;
