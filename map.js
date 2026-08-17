@@ -130,7 +130,7 @@ const AIRPORTS = {
       { id:"F009", address:"Bibliothèque Communale, Place Verte, 4470 Stockay", lat:50.5808306, lon:5.3554167 },
       { id:"F010", address:"Rue Haute Voie 23, Verlaine", lat:50.5993917, lon:5.3134917 },
       { id:"F011", address:"Rue Albert 1er 18, St Georges", lat:50.6011417, lon:5.3558944 },
-      { id:"F012", address:"Rue Barbe d'Or 13, 4317 Aineffe", lat:50.6219167, lon:5.2547472 }
+      { id:"F012", address:"Rue Barbe d'Or 13, 4317 Aineffe", lat:50.6219167, lon:5.2547472 },
       { id:"F013", address:"Rue Bois Léon 31, Verlaine", lat:50.5869139, lon:5.3086778 },
       { id:"F014", address:"Rue Léon Labye 12, Juprelle", lat:50.7188944, lon:5.5731639 },
       { id:"F015", address:"Rue du Brouck 5, Juprelle", lat:50.6888389, lon:5.5262167 },
