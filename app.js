@@ -59,7 +59,7 @@ async function loadAirport(key) {
 
 async function loadWeather(key) {
   try {
-    const url = `https://dashboard-backend.onrender.com/api/weather/${key}`;
+    const url = `https://aero-noise.onrender.com/api/weather/${key}`;
     const res = await fetch(url);
     const data = await res.json();
 
@@ -76,7 +76,7 @@ async function loadWeather(key) {
 
 async function loadFlights(key) {
   try {
-    const url = `https://dashboard-backend.onrender.com/api/flights/${key}`;
+    const url = `https://aero-noise.onrender.com/api/flights/${key}`;
     const res = await fetch(url);
     const data = await res.json();
 
