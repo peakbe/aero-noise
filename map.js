@@ -58,3 +58,60 @@ export function addAirportMarker(key) {
     .addTo(map)
     .bindPopup(`${ap.icao}`);
 }
+
+// =====================================================
+// SONOMETRES — ND Airbus PRO+++ avec labels
+// =====================================================
+
+let sonoLayer = L.layerGroup();
+
+export function updateSono(airportKey, activeRunway) {
+  if (!map) return;
+
+  sonoLayer.clearLayers();
+
+  const ap = AIRPORTS[airportKey];
+  if (!ap) return;
+
+  const sonos = ap.sonometers || [];
+  const cond = ap.conditions?.[activeRunway] || { green: [], red: [] };
+
+  sonos.forEach(s => {
+    const isGreen = cond.green.includes(s.id);
+    const isRed   = cond.red.includes(s.id);
+
+    const color = isGreen ? "#32ff7e" : isRed ? "#ff0033" : "#00e5ff";
+
+    // Cercle ND style Airbus
+    const marker = L.circleMarker([s.lat, s.lon], {
+      radius: 7,
+      color,
+      weight: 2,
+      fillColor: color,
+      fillOpacity: 0.5
+    });
+
+    // Label ND (ID sonomètre)
+    const labelIcon = L.divIcon({
+      className: "sono-label",
+      html: `<span>${s.id}</span>`,
+      iconSize: [40, 16],
+      iconAnchor: [20, -10]
+    });
+
+    const label = L.marker([s.lat, s.lon], { icon: labelIcon, interactive: false });
+
+    // Popup détaillé
+    marker.bindPopup(`
+      <b>${s.id}</b><br>
+      ${s.address}<br>
+      <b>${isGreen ? "GREEN" : isRed ? "RED" : "NEUTRAL"}</b><br>
+      RWY ${activeRunway}
+    `);
+
+    sonoLayer.addLayer(marker);
+    sonoLayer.addLayer(label);
+  });
+
+  sonoLayer.addTo(map);
+}
