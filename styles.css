@@ -1,15 +1,15 @@
 /* =====================================================
-   ND Airbus — Thème avionique PRO+++
+   JEPPESEN ND — Thème avionique PRO+++
 ===================================================== */
 
 :root {
-  --bg-main: #050608;
-  --bg-panel: #111318;
-  --bg-box: #0b0d12;
-  --border-main: #00ffff;
-  --text-main: #00ffff;
-  --text-muted: #7fdfff;
-  --accent: #32ff7e;
+  --bg-main: #0a0d14;          /* Bleu nuit Jeppesen */
+  --bg-panel: #11141c;         /* Panel avionique */
+  --bg-box: #0c1018;           /* Boîtes METAR/TAF */
+  --border-main: #00e5ff;      /* Cyan Jeppesen */
+  --text-main: #00e5ff;        /* Texte principal */
+  --text-muted: #7fdfff;       /* Texte secondaire */
+  --accent: #32ff7e;           /* Vert Airbus */
 }
 
 * {
@@ -28,13 +28,13 @@ body {
 ===================================================== */
 
 .nd-header {
-  padding: 8px 14px;
+  padding: 10px 16px;
   border-bottom: 1px solid var(--border-main);
   background: var(--bg-main);
 }
 
 .nd-title {
-  font-size: 18px;
+  font-size: 20px;
   color: var(--accent);
 }
 
@@ -63,7 +63,7 @@ body {
 .nd-right {
   overflow-y: auto;
   background: var(--bg-panel);
-  padding: 10px;
+  padding: 12px;
 }
 
 /* =====================================================
@@ -82,12 +82,13 @@ body {
   position: absolute;
   top: 20px;
   right: 20px;
-  background: #111;
+  background: #11141c;
   border: 2px solid var(--border-main);
   color: var(--text-main);
   padding: 6px 12px;
   cursor: pointer;
   border-radius: 4px;
+  transition: 0.2s;
 }
 
 .float-btn:hover {
@@ -100,7 +101,7 @@ body {
 ===================================================== */
 
 .panel {
-  padding: 10px 14px;
+  padding: 12px 16px;
   border-bottom: 1px solid var(--border-main);
   background: var(--bg-panel);
 }
@@ -109,14 +110,16 @@ body {
   font-size: 16px;
   margin-bottom: 6px;
   color: var(--accent);
+  letter-spacing: 1px;
 }
 
 .data-box {
   background: var(--bg-box);
   padding: 10px;
   border: 1px solid var(--border-main);
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   min-height: 32px;
+  font-size: 13px;
 }
 
 /* METAR / TAF monospace */
@@ -124,6 +127,7 @@ body {
 .mono {
   font-family: monospace;
   white-space: pre-wrap;
+  color: var(--text-main);
 }
 
 /* =====================================================
@@ -133,9 +137,14 @@ body {
 .fids-list div {
   display: flex;
   justify-content: space-between;
-  border-bottom: 1px dashed #222;
+  border-bottom: 1px dashed #1a1f28;
   padding: 4px 0;
   font-size: 12px;
+  color: var(--text-muted);
+}
+
+.fids-list div span:first-child {
+  color: var(--accent);
 }
 
 /* =====================================================
@@ -143,7 +152,7 @@ body {
 ===================================================== */
 
 .nd-controls {
-  padding: 10px;
+  padding: 12px;
   background: var(--bg-panel);
   border-top: 1px solid var(--border-main);
 }
@@ -157,6 +166,7 @@ select {
   color: var(--text-main);
   border: 1px solid var(--border-main);
   padding: 4px 8px;
+  font-family: monospace;
 }
 
 select:focus {
