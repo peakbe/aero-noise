@@ -2,127 +2,55 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Dashboard ND / METAR / FIDS — PRO+++</title>
+  <title>Dashboard ND / METAR / FIDS</title>
 
-  <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-
-  <!-- Style avionique -->
   <link rel="stylesheet" href="styles.css" />
-
-  <style>
-    body {
-      margin: 0;
-      background: #0a0a0a;
-      color: #0ff;
-      font-family: monospace;
-    }
-
-    #map {
-      width: 100vw;
-      height: 60vh;
-      border-bottom: 2px solid #0ff;
-    }
-
-    .panel {
-      padding: 10px;
-      border-bottom: 1px solid #0ff;
-    }
-
-    .float-btn {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      background: #111;
-      border: 2px solid #0ff;
-      color: #0ff;
-      padding: 6px 12px;
-      font-family: monospace;
-      cursor: pointer;
-      border-radius: 4px;
-    }
-    .float-btn:hover {
-      border-color: lime;
-      color: lime;
-    }
-
-    .section-title {
-      font-size: 18px;
-      margin-bottom: 6px;
-      color: #0ff;
-    }
-
-    .data-box {
-      background: #111;
-      padding: 10px;
-      border: 1px solid #0ff;
-      margin-bottom: 10px;
-    }
-  </style>
 </head>
 
 <body>
 
-  <!-- Bandeau titre -->
-  <header class="nd-header">
-    <div class="nd-title">ND / METAR / FIDS — EBLG / EBCI</div>
-    <div class="nd-subtitle">Aero Noise Dashboard — Airbus style</div>
-  </header>
+  <h1>ND / METAR / FIDS — EBLG / EBCI</h1>
 
-  <!-- Layout principal -->
-  <main class="nd-layout">
+  <div id="map"></div>
+  <button id="btn-recenter">RECENTER</button>
 
-    <!-- Colonne gauche : ND / carte -->
-    <section class="nd-left">
-      <div id="map" class="nd-map"></div>
-      <button id="btn-recenter" class="float-btn">RECENTER</button>
+  <div>
+    <label for="airport-select">Aéroport :</label>
+    <select id="airport-select">
+      <option value="EBLG">EBLG — Liège</option>
+      <option value="EBCI">EBCI — Charleroi</option>
+    </select>
+  </div>
 
-      <div class="nd-controls">
-        <label for="airport-select">Aéroport :</label>
-        <select id="airport-select">
-          <option value="EBLG">EBLG — Liège</option>
-          <option value="EBCI">EBCI — Charleroi</option>
-        </select>
-      </div>
-    </section>
+  <div class="panel">
+    <h2>METAR</h2>
+    <div id="metar-box" class="data-box"></div>
+  </div>
 
-    <!-- Colonne droite : METAR / TAF / WX / FIDS -->
-    <section class="nd-right">
+  <div class="panel">
+    <h2>TAF</h2>
+    <div id="taf-box" class="data-box"></div>
+  </div>
 
-      <div class="panel">
-        <div class="section-title">METAR</div>
-        <div id="metar-box" class="data-box mono"></div>
-      </div>
+  <div class="panel">
+    <h2>Météo (OpenWeather)</h2>
+    <div id="weather-box" class="data-box"></div>
+  </div>
 
-      <div class="panel">
-        <div class="section-title">TAF</div>
-        <div id="taf-box" class="data-box mono"></div>
-      </div>
+  <div class="panel">
+    <h2>Arrivées (AirLabs)</h2>
+    <div id="arrivals-box" class="data-box"></div>
+  </div>
 
-      <div class="panel">
-        <div class="section-title">WX (OpenWeather)</div>
-        <div id="weather-box" class="data-box"></div>
-      </div>
+  <div class="panel">
+    <h2>Départs (AirLabs)</h2>
+    <div id="departures-box" class="data-box"></div>
+  </div>
 
-      <div class="panel">
-        <div class="section-title">Arrivées (AirLabs)</div>
-        <div id="arrivals-box" class="data-box fids-list"></div>
-      </div>
-
-      <div class="panel">
-        <div class="section-title">Départs (AirLabs)</div>
-        <div id="departures-box" class="data-box fids-list"></div>
-      </div>
-
-    </section>
-
-  </main>
-
-  <!-- Scripts -->
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script type="module" src="map.js"></script>
   <script type="module" src="app.js"></script>
 
 </body>
-
 </html>
