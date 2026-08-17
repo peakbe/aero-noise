@@ -152,3 +152,90 @@ function updateFlightsUI(data) {
     `)
     .join("") || "Aucun départ";
 }
+
+// =====================================================
+// MCDU — Rose des vents + RWY + tendances
+// =====================================================
+
+function updateMCDU(data) {
+  const windBox = document.getElementById("mcdu-wind");
+  const rwyBox = document.getElementById("mcdu-rwy");
+  const trendBox = document.getElementById("mcdu-trend");
+
+  // --- METAR WIND ---
+  const wdir = data.metar?.wdir;
+  const wspd = data.metar?.wspd;
+
+  windBox.textContent = wdir
+    ? `WIND ${wdir}° / ${wspd}KT`
+    : "WIND ---";
+
+  // --- RWY RECOMMANDÉE ---
+  if (wdir !== undefined) {
+    const rwy = computeRunwayFromWind(wdir);
+    rwyBox.textContent = `RWY ${rwy}`;
+  } else {
+    rwyBox.textContent = "RWY ---";
+  }
+
+  // --- TENDANCES TAF ---
+  const taf = data.taf?.rawTAF || "";
+  const trends = taf.match(/(BECMG|TEMPO|PROB\d+)/g);
+  trendBox.textContent = trends ? trends.join(" ") : "NO TREND";
+
+  // --- ROSE DES VENTS ---
+  drawWindRose(wdir);
+}
+
+// =====================================================
+// Calcul RWY en fonction du vent
+// =====================================================
+
+function computeRunwayFromWind(wdir) {
+  const rwy = Math.round(wdir / 10);
+  return rwy.toString().padStart(2, "0");
+}
+
+// =====================================================
+// Dessin rose des vents ND Airbus
+// =====================================================
+
+function drawWindRose(wdir) {
+  const canvas = document.getElementById("mcdu-rose");
+  const ctx = canvas.getContext("2d");
+
+  ctx.clearRect(0, 0, 220, 220);
+
+  // Cercle ND
+  ctx.strokeStyle = "#00e5ff";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(110, 110, 90, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Axe Nord
+  ctx.beginPath();
+  ctx.moveTo(110, 20);
+  ctx.lineTo(110, 200);
+  ctx.stroke();
+
+  // Axe Est-Ouest
+  ctx.beginPath();
+  ctx.moveTo(20, 110);
+  ctx.lineTo(200, 110);
+  ctx.stroke();
+
+  // Vent
+  if (wdir !== undefined) {
+    const rad = (wdir - 90) * Math.PI / 180;
+    const x = 110 + Math.cos(rad) * 70;
+    const y = 110 + Math.sin(rad) * 70;
+
+    ctx.strokeStyle = "#32ff7e";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(110, 110);
+    ctx.lineTo(x, y);
+    ctx.stroke();
+  }
+}
