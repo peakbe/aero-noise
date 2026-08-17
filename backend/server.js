@@ -386,20 +386,13 @@ app.get(
 ]);
 
       res.json({
-
         airport: airport.icao,
-
         openWeather,
-
         metar:
           metar?.[0] || null,
-
-        taf:
-          taf: taf?.[0] || null,
-
+        taf: taf?.[0] || null,
         updatedAt:
           new Date().toISOString()
-
       });
 
     } catch (error) {
