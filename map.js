@@ -2,10 +2,13 @@
 
 // ⚙️ Initialisation carte
 let map;
+
+// Aéroports pour centrage carte (version simple)
 window.airports = {
   EBCI: { icao: "EBCI", lat: 50.4592, lon: 4.4538 },
   EBLG: { icao: "EBLG", lat: 50.6374, lon: 5.4432 }
 };
+
 window.currentAirportKey = "EBLG"; // valeur par défaut
 
 export function initMap() {
@@ -42,7 +45,7 @@ export function resetMapView() {
   }
 }
 
-// ✈️ Exemple d’ajout de marker METAR/TAF
+// ✈️ Ajout marker METAR/TAF
 export function addAirportMarker(key) {
   const ap = window.airports[key];
   if (!ap || !map) return;
@@ -51,6 +54,7 @@ export function addAirportMarker(key) {
     .addTo(map)
     .bindPopup(`${ap.icao}`);
 }
+
 // =====================================================
 // AEROPORTS — données complètes (runways + sonomètres)
 // =====================================================
@@ -85,7 +89,7 @@ const AIRPORTS = {
       { id:"F116", address:"Rue de l'Enseignement 144, Fontaine-l'Evêque", lat:50.4106333, lon:4.3150528 },
       { id:"F117", address:"Rue du Terril 1, Forchies", lat:50.4315, lon:4.3149194 },
       { id:"F118", address:"Rue Piconette 1, Sombreffe", lat:50.5052667, lon:4.6111806 },
-      { id:"F119", address:"Rue René Delhaize 39, Ransart", lat:50.4632139, lon:4.4790917 },
+      { id:"F119", address:"Rue René Delhaize 39, Ransart", lat:50.4632139, lon:4.4790917 }
     ],
 
     conditions: {
@@ -128,8 +132,7 @@ const AIRPORTS = {
       { id:"F014", address:"Rue Léon Labye 12, Juprelle", lat:50.7188944, lon:5.5731639 },
       { id:"F015", address:"Rue du Brouck 5, Juprelle", lat:50.6888389, lon:5.5262167 },
       { id:"F016", address:"Rue de Chapon-Seraing 14, Verlaine", lat:50.6196167, lon:5.2953444 },
-      { id:"F017", address:"Rue de la Pommeraie, 4690 Wonck", lat:50.7648833, lon:5.6306056 },
-      
+      { id:"F017", address:"Rue de la Pommeraie, 4690 Wonck", lat:50.7648833, lon:5.6306056 }
     ],
 
     conditions: {
@@ -170,7 +173,6 @@ export function updateSono(airportKey, activeRunway) {
 
     const color = isGreen ? "#32ff7e" : isRed ? "#ff0033" : "#00e5ff";
 
-    // Cercle ND style Airbus
     const marker = L.circleMarker([s.lat, s.lon], {
       radius: 7,
       color,
@@ -179,7 +181,6 @@ export function updateSono(airportKey, activeRunway) {
       fillOpacity: 0.5
     });
 
-    // Label ND (ID sonomètre)
     const labelIcon = L.divIcon({
       className: "sono-label",
       html: `<span>${s.id}</span>`,
@@ -189,7 +190,6 @@ export function updateSono(airportKey, activeRunway) {
 
     const label = L.marker([s.lat, s.lon], { icon: labelIcon, interactive: false });
 
-    // Popup détaillé
     marker.bindPopup(`
       <b>${s.id}</b><br>
       ${s.address}<br>
