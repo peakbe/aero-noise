@@ -207,6 +207,45 @@ async function getMetar(icao) {
   return data;
 }
 
+/* =====================================================
+   AVIATION WEATHER / FAA METAR
+===================================================== */
+async function getFaaMetar(icao) {
+
+  const url =
+    `${FAA_METAR_URL}?dataSource=metars&requestType=retrieve&format=xml&stationString=${icao}`;
+
+  try {
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      console.error(`FAA METAR HTTP ${response.status}`);
+      return null;
+    }
+
+    const text = await response.text();
+
+    const match = text.match(/<raw_text>(.*?)<\/raw_text>/);
+
+    if (!match || !match[1]) {
+      console.warn(`FAA METAR vide pour ${icao}`);
+      return null;
+    }
+
+    return [{
+      icao,
+      raw_text: match[1],
+      station: icao,
+      time: new Date().toISOString(),
+      meta: { fallback: "FAA" }
+    }];
+
+  } catch (err) {
+    console.error("Erreur FAA METAR:", err);
+    return null;
+  }
+}
+
 // =====================================================
 // FALLBACK TAF PRO+++
 // =====================================================
@@ -302,6 +341,45 @@ async function getTaf(icao) {
 
   setCache("taf", cacheKey, data);
   return data;
+}
+
+/* =====================================================
+   AVIATION WEATHER / FAA TAF
+===================================================== */
+async function getFaaTaf(icao) {
+
+  const url =
+    `${FAA_TAF_URL}?dataSource=tafs&requestType=retrieve&format=xml&stationString=${icao}`;
+
+  try {
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      console.error(`FAA TAF HTTP ${response.status}`);
+      return null;
+    }
+
+    const text = await response.text();
+
+    const match = text.match(/<raw_text>(.*?)<\/raw_text>/);
+
+    if (!match || !match[1]) {
+      console.warn(`FAA TAF vide pour ${icao}`);
+      return null;
+    }
+
+    return [{
+      icao,
+      raw_text: match[1],
+      station: icao,
+      time: new Date().toISOString(),
+      meta: { fallback: "FAA" }
+    }];
+
+  } catch (err) {
+    console.error("Erreur FAA TAF:", err);
+    return null;
+  }
 }
 
 /* =====================================================
