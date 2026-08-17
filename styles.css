@@ -1,1 +1,91 @@
+/* styles.css — thème avionique PRO+++ */
 
+:root {
+  --bg-main: #050608;
+  --bg-panel: #111318;
+  --bg-box: #0b0d12;
+  --border-main: #00ffff;
+  --text-main: #00ffff;
+  --text-muted: #7fdfff;
+  --accent: #32ff7e;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg-main);
+  color: var(--text-main);
+  font-family: monospace;
+}
+
+/* Carte ND / radar */
+
+#map {
+  width: 100vw;
+  height: 60vh;
+  border-bottom: 2px solid var(--border-main);
+}
+
+/* Bouton flottant */
+
+.float-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: #111;
+  border: 2px solid var(--border-main);
+  color: var(--text-main);
+  padding: 6px 12px;
+  font-family: monospace;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.float-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Panneaux */
+
+.panel {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-main);
+  background: var(--bg-panel);
+}
+
+.section-title {
+  font-size: 16px;
+  margin-bottom: 6px;
+  color: var(--accent);
+}
+
+/* Boîtes de données */
+
+.data-box {
+  background: var(--bg-box);
+  padding: 10px;
+  border: 1px solid var(--border-main);
+  margin-bottom: 10px;
+  min-height: 32px;
+}
+
+/* Sélecteur d’aéroport */
+
+label {
+  margin-right: 8px;
+}
+
+select {
+  background: #000;
+  color: var(--text-main);
+  border: 1px solid var(--border-main);
+  padding: 4px 8px;
+  font-family: monospace;
+}
+select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
