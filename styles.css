@@ -138,3 +138,47 @@ select:focus {
   outline: none;
   border-color: var(--accent);
 }
+
+/* =====================================================
+   SIDEBAR MCDU — JEPPESEN PRO+++
+===================================================== */
+
+#sidebar-mcdu {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 260px;
+  height: 100vh;
+  background: #0a0d14;
+  border-right: 2px solid #00e5ff;
+  padding: 12px;
+  color: #00e5ff;
+  font-family: monospace;
+  z-index: 9999;
+}
+
+.mcdu-title {
+  font-size: 18px;
+  color: #32ff7e;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.mcdu-box {
+  background: #0c1018;
+  border: 1px solid #00e5ff;
+  padding: 10px;
+  margin-bottom: 12px;
+  min-height: 40px;
+  font-size: 14px;
+}
+
+/* Carte ND décalée à droite */
+#map {
+  position: absolute;
+  left: 260px;
+  top: 0;
+  width: calc(100vw - 260px);
+  height: 100vh;
+  border-left: 2px solid #00e5ff;
+}
