@@ -40,13 +40,6 @@ h1 {
    CARTE ND (HTML simple)
 ===================================================== */
 
-#map {
-  width: 100%;
-  height: 60vh;                     /* ✔ Carte visible */
-  border-bottom: 2px solid var(--border-main);
-  background: #000;
-}
-
 /* Bouton RECENTER */
 
 #btn-recenter {
@@ -181,4 +174,22 @@ select:focus {
   width: calc(100vw - 260px);
   height: 100vh;
   border-left: 2px solid #00e5ff;
+  background: #000;
+  z-index: 1;
 }
+
+#btn-recenter {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: #11141c;
+  border: 2px solid var(--border-main);
+  color: var(--text-main);
+  padding: 6px 12px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: 0.2s;
+  z-index: 99999; /* ✔ Toujours au-dessus */
+}
+
+
