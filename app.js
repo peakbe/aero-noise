@@ -92,25 +92,35 @@ async function loadFlights(key) {
 // =====================================================
 
 function updateWeatherUI(data) {
-
   const metarBox = document.getElementById("metar-box");
-  const tafBox   = document.getElementById("taf-box");
-  const wxBox    = document.getElementById("weather-box");
+  const tafBox = document.getElementById("taf-box");
+  const weatherBox = document.getElementById("weather-box");
 
-  if (metarBox) {
-    metarBox.textContent = data.metar?.raw_text || "METAR indisponible";
+  // METAR
+  if (data.metar) {
+    metarBox.textContent = data.metar.rawOb || "METAR indisponible";
+  } else {
+    metarBox.textContent = "METAR indisponible";
   }
 
-  if (tafBox) {
-    tafBox.textContent = data.taf?.raw_text || "TAF indisponible";
+  // TAF
+  if (data.taf) {
+    tafBox.textContent = data.taf.rawTAF || "TAF indisponible";
+  } else {
+    tafBox.textContent = "TAF indisponible";
   }
 
-  if (wxBox && data.openWeather) {
-    wxBox.innerHTML = `
-      <div>Temp: ${data.openWeather.temp}°C</div>
-      <div>Vent: ${data.openWeather.wind} km/h</div>
-      <div>Humidité: ${data.openWeather.humidity}%</div>
+  // OpenWeather
+  if (data.openWeather) {
+    const w = data.openWeather;
+    weatherBox.innerHTML = `
+      Temp: ${w.main.temp}°C<br>
+      Vent: ${w.wind.speed} m/s<br>
+      Humidité: ${w.main.humidity}%<br>
+      Ciel: ${w.weather[0].description}
     `;
+  } else {
+    weatherBox.textContent = "Météo indisponible";
   }
 }
 
@@ -122,28 +132,23 @@ function updateFlightsUI(data) {
   const arrBox = document.getElementById("arrivals-box");
   const depBox = document.getElementById("departures-box");
 
-  if (arrBox) {
-    arrBox.innerHTML = (data.arrivals || [])
-      .map(f => `
-        <div>
-          <span>${f.flight_iata || f.flight_icao || "—"}</span>
-          <span>${f.dep_iata || "??"} → ${f.arr_iata || "??"}</span>
-          <span>${f.arr_time || ""}</span>
-        </div>
-      `)
-      .join("") || "Aucune arrivée";
-  }
+  arrBox.innerHTML = (data.arrivals || [])
+    .map(f => `
+      <div>
+        <span>${f.flight_iata || f.flight_icao || "—"}</span>
+        <span>${f.dep_iata || "??"} → ${f.arr_iata || "??"}</span>
+        <span>${f.arr_time || ""}</span>
+      </div>
+    `)
+    .join("") || "Aucune arrivée";
 
-  if (depBox) {
-    depBox.innerHTML = (data.departures || [])
-      .map(f => `
-        <div>
-          <span>${f.flight_iata || f.flight_icao || "—"}</span>
-          <span>${f.dep_iata || "??"} → ${f.arr_iata || "??"}</span>
-          <span>${f.dep_time || ""}</span>
-        </div>
-      `)
-      .join("") || "Aucun départ";
-  }
+  depBox.innerHTML = (data.departures || [])
+    .map(f => `
+      <div>
+        <span>${f.flight_iata || f.flight_icao || "—"}</span>
+        <span>${f.dep_iata || "??"} → ${f.arr_iata || "??"}</span>
+        <span>${f.dep_time || ""}</span>
+      </div>
+    `)
+    .join("") || "Aucun départ";
 }
-
