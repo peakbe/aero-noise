@@ -149,6 +149,8 @@ const AIRPORTS = {
 
 };
 
+window.AIRPORTS = AIRPORTS;
+
 // =====================================================
 // SONOMETRES — ND Airbus PRO+++ avec labels
 // =====================================================
