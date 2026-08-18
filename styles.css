@@ -24,41 +24,6 @@ body {
 }
 
 /* =====================================================
-   TITRE
-===================================================== */
-
-h1 {
-  padding: 12px 16px;
-  margin: 0;
-  border-bottom: 1px solid var(--border-main);
-  background: var(--bg-main);
-  color: var(--accent);
-  font-size: 20px;
-}
-
-/* =====================================================
-   Bouton RECENTRER
-===================================================== */
-
-#btn-recenter {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background: #11141c;
-  border: 2px solid var(--border-main);
-  color: var(--text-main);
-  padding: 6px 12px;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: 0.2s;
-}
-
-#btn-recenter:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-/* =====================================================
    PANELS (METAR / TAF / WX / FIDS)
 ===================================================== */
 
@@ -66,6 +31,7 @@ h1 {
   padding: 12px 16px;
   border-bottom: 1px solid var(--border-main);
   background: var(--bg-panel);
+  margin-left: 260px; /* ✔ Panels décalés à droite de la sidebar */
 }
 
 .panel h2 {
@@ -86,7 +52,6 @@ h1 {
 }
 
 /* METAR / TAF monospace */
-
 .mono {
   font-family: monospace;
   white-space: pre-wrap;
@@ -110,32 +75,11 @@ h1 {
 }
 
 /* =====================================================
-   Sélecteur d’aéroport
-===================================================== */
-
-label {
-  margin-right: 8px;
-}
-
-select {
-  background: #000;
-  color: var(--text-main);
-  border: 1px solid var(--border-main);
-  padding: 4px 8px;
-  font-family: monospace;
-}
-
-select:focus {
-  outline: none;
-  border-color: var(--accent);
-}
-
-/* =====================================================
    SIDEBAR MCDU — JEPPESEN PRO+++
 ===================================================== */
 
 #sidebar-mcdu {
-  position: absolute;
+  position: fixed; /* ✔ Fixe, ne bouge plus */
   left: 0;
   top: 0;
   width: 260px;
@@ -145,7 +89,7 @@ select:focus {
   padding: 12px;
   color: #00e5ff;
   font-family: monospace;
-  z-index: 10;
+  z-index: 1000; /* ✔ Toujours au-dessus */
 }
 
 .mcdu-title {
@@ -164,10 +108,13 @@ select:focus {
   font-size: 14px;
 }
 
-/* Carte ND décalée à droite */
+/* =====================================================
+   Carte ND décalée à droite
+===================================================== */
+
 #map {
-  position: absolute;
-  left: 260px;
+  position: fixed;
+  left: 260px; /* ✔ largeur sidebar */
   top: 0;
   width: calc(100vw - 260px);
   height: 100vh;
@@ -175,6 +122,10 @@ select:focus {
   background: #000;
   z-index: 1;
 }
+
+/* =====================================================
+   Bouton RECENTER — avionique
+===================================================== */
 
 #btn-recenter {
   position: absolute;
@@ -190,6 +141,11 @@ select:focus {
   z-index: 99999; /* ✔ Toujours au-dessus */
 }
 
+#btn-recenter:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 /* =====================================================
    Labels SONO — ND Airbus PRO+++
 ===================================================== */
@@ -201,15 +157,6 @@ select:focus {
   border: 1px solid #00e5ff;
   color: #00e5ff;
   font-size: 10px;
-  font-family: monospace;
-}
-
-.mcdu-select {
-  width: 100%;
-  background: #000;
-  color: #00e5ff;
-  border: 1px solid #00e5ff;
-  padding: 4px;
   font-family: monospace;
 }
 
