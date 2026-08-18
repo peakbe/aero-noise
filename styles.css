@@ -1,17 +1,16 @@
 /* =====================================================
    AIRBUS A320 — Thème avionique ULTRA‑RÉALISTE
-   ND (cyan), FD (vert), Warnings (amber/rouge)
 ===================================================== */
 
 :root {
-  --airbus-bg: #0a0d14;          /* Fond cockpit Airbus */
-  --airbus-panel: #11141c;       /* Panneaux EFIS */
-  --airbus-box: #0c1018;         /* Boîtes MCDU/ND */
-  --airbus-cyan: #00e5ff;        /* ND Airbus (cyan) */
-  --airbus-green: #32ff7e;       /* FD / Flight Director */
-  --airbus-amber: #ffb000;       /* Warnings amber */
-  --airbus-red: #ff0033;         /* Master Warning */
-  --airbus-muted: #7fdfff;       /* Texte secondaire */
+  --airbus-bg: #0a0d14;
+  --airbus-panel: #11141c;
+  --airbus-box: #0c1018;
+  --airbus-cyan: #00e5ff;
+  --airbus-green: #32ff7e;
+  --airbus-amber: #ffb000;
+  --airbus-red: #ff0033;
+  --airbus-muted: #7fdfff;
 }
 
 body {
@@ -22,7 +21,7 @@ body {
 }
 
 /* =====================================================
-   SIDEBAR MCDU — Airbus style
+   SIDEBAR MCDU
 ===================================================== */
 
 #sidebar-mcdu {
@@ -31,7 +30,7 @@ body {
   top: 0;
   width: 260px;
   height: 100vh;
-  background: #0a0d14;
+  background: var(--airbus-bg);
   border-right: 2px solid var(--airbus-cyan);
   padding: 12px;
   z-index: 1000;
@@ -39,7 +38,7 @@ body {
 
 .mcdu-title {
   font-size: 18px;
-  color: var(--airbus-green); /* FD green */
+  color: var(--airbus-green);
   text-align: center;
   margin-bottom: 12px;
 }
@@ -54,6 +53,16 @@ body {
   font-size: 14px;
 }
 
+/* WIND SPEED (m/s) — nouvelle boîte */
+#mcdu-wind-ms {
+  background: var(--airbus-box);
+  border: 1px solid var(--airbus-cyan);
+  padding: 10px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  color: var(--airbus-green);
+}
+
 /* Sélecteur avionique */
 .mcdu-select {
   width: 100%;
@@ -65,11 +74,14 @@ body {
 }
 
 /* =====================================================
-   Boutons avioniques — style FCU/MCDU
+   Boutons avioniques — repositionnés en bas
 ===================================================== */
 
-.mcdu-buttons {
-  margin-top: 12px;
+#mcdu-buttons-container {
+  position: absolute;
+  bottom: 20px;
+  left: 12px;
+  right: 12px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -77,7 +89,7 @@ body {
 
 .mcdu-btn {
   width: 100%;
-  background: #0c1018;
+  background: var(--airbus-box);
   border: 2px solid var(--airbus-cyan);
   color: var(--airbus-cyan);
   padding: 8px;
@@ -104,11 +116,6 @@ body {
   background: #000;
   border-left: 2px solid var(--airbus-cyan);
   z-index: 1;
-}
-
-#btn-recenter:hover {
-  border-color: var(--airbus-green);
-  color: var(--airbus-green);
 }
 
 /* =====================================================
@@ -138,7 +145,7 @@ body {
 .panel h2 {
   margin: 0 0 6px 0;
   font-size: 16px;
-  color: var(--airbus-green); /* FD green */
+  color: var(--airbus-green);
 }
 
 .data-box {
@@ -151,7 +158,7 @@ body {
 }
 
 /* =====================================================
-   Warnings Airbus (amber / red)
+   Warnings Airbus
 ===================================================== */
 
 .warning-amber {
@@ -165,11 +172,11 @@ body {
 }
 
 /* =====================================================
-   FIDS — Airbus ND style (cyan, amber, rouge)
+   FIDS — Airbus ND style
 ===================================================== */
 
 .mcdu-fids {
-  background: #0c1018;
+  background: var(--airbus-box);
   border: 1px solid var(--airbus-cyan);
   padding: 10px;
   margin-top: 12px;
@@ -179,7 +186,7 @@ body {
 }
 
 .mcdu-fids-title {
-  color: var(--airbus-green); /* FD green */
+  color: var(--airbus-green);
   font-size: 14px;
   margin-bottom: 6px;
   text-align: center;
@@ -196,23 +203,13 @@ body {
 }
 
 .mcdu-fids-row span:first-child {
-  color: var(--airbus-green); /* FD green */
+  color: var(--airbus-green);
 }
 
 .mcdu-fids-delay {
-  color: var(--airbus-amber); /* amber warning */
+  color: var(--airbus-amber);
 }
 
 .mcdu-fids-cancel {
-  color: var(--airbus-red); /* master warning */
-}
-
-#mcdu-buttons-container {
-  position: absolute;
-  bottom: 20px;
-  left: 12px;
-  right: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  color: var(--airbus-red);
 }
