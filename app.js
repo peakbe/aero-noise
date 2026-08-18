@@ -301,6 +301,19 @@ function updateMCDU(data) {
 }
 
 // =====================================================
+// TAF — Extraction des tendances (BECMG / TEMPO / PROB)
+// =====================================================
+
+function extractTrends(rawTAF) {
+  if (!rawTAF) return "NO TREND";
+
+  const blocks = rawTAF.match(/(BECMG|TEMPO|PROB\d+|FM\d+|TL\d+|AT\d+)[^A-Z]*/g);
+  if (!blocks) return "NO TREND";
+
+  return blocks.join(" | ");
+}
+
+// =====================================================
 // RWY FROM WIND
 // =====================================================
 
