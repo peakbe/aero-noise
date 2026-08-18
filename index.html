@@ -10,64 +10,37 @@
 
 <body>
 
-  <!-- SIDEBAR MCDU — Jeppesen PRO+++ -->
-<div id="sidebar-mcdu">
+  <!-- SIDEBAR MCDU -->
+  <div id="sidebar-mcdu">
 
-  <div class="mcdu-title">MCDU / ND — Jeppesen PRO+++</div>
+    <div class="mcdu-title">MCDU / ND — Jeppesen PRO+++</div>
 
-  <!-- WIND -->
-  <div id="mcdu-wind" class="mcdu-box"></div>
+    <div id="mcdu-wind" class="mcdu-box"></div>
+    <div id="mcdu-rwy" class="mcdu-box"></div>
+    <div id="mcdu-trend" class="mcdu-box"></div>
 
-  <!-- RWY ACTIVE -->
-  <div id="mcdu-rwy" class="mcdu-box"></div>
+    <canvas id="mcdu-rose" width="220" height="220"></canvas>
 
-  <!-- TENDANCES TAF -->
-  <div id="mcdu-trend" class="mcdu-box"></div>
+    <div class="mcdu-box">
+      APT :
+      <select id="airport-select" class="mcdu-select">
+        <option value="EBLG">EBLG — Liège</option>
+        <option value="EBCI">EBCI — Charleroi</option>
+      </select>
+    </div>
 
-  <!-- ROSE DES VENTS ND AIRBUS -->
-  <canvas id="mcdu-rose" width="220" height="220"></canvas>
-
-  <!-- APT SELECTOR -->
-  <div class="mcdu-box">
-    APT :
-    <select id="airport-select" class="mcdu-select">
-      <option value="EBLG">EBLG — Liège</option>
-      <option value="EBCI">EBCI — Charleroi</option>
-    </select>
-  </div>
-  
-<div id="map"></div>
-  
-  <!-- BUTTONS -->
-  <div class="mcdu-buttons">
-
-    <button id="btn-recenter" class="mcdu-btn">
-      RCL
-    </button>
-
-    <button id="btn-refresh" class="mcdu-btn">
-      REFRESH
-    </button>
-
-    <button id="btn-sono" class="mcdu-btn">
-      SONO
-    </button>
+    <div class="mcdu-buttons">
+      <button id="btn-recenter" class="mcdu-btn">RCL</button>
+      <button id="btn-refresh" class="mcdu-btn">REFRESH</button>
+      <button id="btn-sono" class="mcdu-btn">SONO</button>
+    </div>
 
   </div>
 
-</div>
+  <!-- ✔ La carte doit être ici, en dehors de la sidebar -->
+  <div id="map"></div>
 
-
-  <!-- ❌ Ancien sélecteur supprimé (il passait derrière la carte)
-  <div>
-    <label for="airport-select">Aéroport :</label>
-    <select id="airport-select">
-      <option value="EBLG">EBLG — Liège</option>
-      <option value="EBCI">EBCI — Charleroi</option>
-    </select>
-  </div>
-  -->
-
+  <!-- PANELS -->
   <div class="panel">
     <h2>METAR</h2>
     <div id="metar-box" class="data-box"></div>
@@ -98,4 +71,5 @@
   <script type="module" src="app.js"></script>
 
 </body>
+
 </html>
