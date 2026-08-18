@@ -119,9 +119,11 @@ async function loadFlights(key) {
     const url = `https://aero-noise.onrender.com/api/flights/${key}`;
     const res = await fetch(url);
     const data = await res.json();
+    const flights = data.flights || data; // compatibilité totale
 
-    updateFlightsUI(data);
-    updateSidebarFids(data);
+    updateFlightsUI(flights);
+    updateSidebarFids(flights);
+
 
   } catch (err) {
     console.error("Erreur vols:", err);
@@ -196,13 +198,16 @@ function updateFlightsUI(data) {
   const arrEl = document.getElementById("mcdu-fids-arr");
   const depEl = document.getElementById("mcdu-fids-dep");
 
+  if (!arrEl || !depEl) return;
+
   const arrivals = (data.arrivals || []).slice(0, 10);
   const departures = (data.departures || []).slice(0, 10);
 
   arrEl.innerHTML = arrivals.map(f => {
-    const status = (f.status || "").toLowerCase();
-    let cls = "mcdu-fids-row";
+    const status = (f.status || f.live?.status || "").toLowerCase();
+    const arrTime = f.arr_time || f.arr_time_utc || f.scheduled_arrival_time || "";
 
+    let cls = "mcdu-fids-row";
     if (status.includes("delay")) cls += " mcdu-fids-delay";
     if (status.includes("cancel")) cls += " mcdu-fids-cancel";
 
@@ -210,15 +215,16 @@ function updateFlightsUI(data) {
       <div class="${cls}">
         <span>${f.flight_iata || f.flight_icao || "—"}</span>
         <span>${f.dep_iata || "??"} → ${f.arr_iata || "??"}</span>
-        <span>${f.arr_time || ""}</span>
+        <span>${arrTime}</span>
       </div>
     `;
   }).join("");
 
   depEl.innerHTML = departures.map(f => {
-    const status = (f.status || "").toLowerCase();
-    let cls = "mcdu-fids-row";
+    const status = (f.status || f.live?.status || "").toLowerCase();
+    const depTime = f.dep_time || f.dep_time_utc || f.scheduled_departure_time || "";
 
+    let cls = "mcdu-fids-row";
     if (status.includes("delay")) cls += " mcdu-fids-delay";
     if (status.includes("cancel")) cls += " mcdu-fids-cancel";
 
@@ -226,7 +232,7 @@ function updateFlightsUI(data) {
       <div class="${cls}">
         <span>${f.flight_iata || f.flight_icao || "—"}</span>
         <span>${f.dep_iata || "??"} → ${f.arr_iata || "??"}</span>
-        <span>${f.dep_time || ""}</span>
+        <span>${depTime}</span>
       </div>
     `;
   }).join("");
