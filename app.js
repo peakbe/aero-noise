@@ -208,7 +208,7 @@ function updateMCDU(data) {
 
   let rwy = "---";
   if (wdir !== undefined) {
-    rwy = computeRunwayFromWind(wdir);
+    rwy = computeRunwayFromWind(wdir, window.currentAirportKey);
     rwyBox.textContent = `RWY ${rwy}`;
   } else {
     rwyBox.textContent = "RWY ---";
@@ -216,19 +216,27 @@ function updateMCDU(data) {
 
   const taf = data.taf?.rawTAF || "";
   const trends = taf.match(/(BECMG|TEMPO|PROB\d+)/g);
-  trendBox.textContent = trends ? trends.join(" ") : "NO TREND";
+  trendBox.textContent = extractTrends(taf);
 
   drawWindRose(wdir);
 
   updateSono(window.currentAirportKey, rwy);
 }
+// Ajout des tendances météo à venir (TAF)
+function extractTrends(rawTAF) {
+  if (!rawTAF) return "NO TREND";
 
+  const blocks = rawTAF.match(/(BECMG|TEMPO|PROB\d+|FM\d+|TL\d+|AT\d+)[^A-Z]*/g);
+  if (!blocks) return "NO TREND";
+
+  return blocks.join(" | ");
+}
 // =====================================================
 // RWY FROM WIND
 // =====================================================
 
 function computeRunwayFromWind(wdir, airportKey) {
-  const ap = AIRPORTS[airportKey];
+  const ap = window.AIRPORTS?.[airportKey];
   if (!ap || !ap.runways) return "---";
 
   let bestRunway = "---";
