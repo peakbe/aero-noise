@@ -227,9 +227,22 @@ function updateMCDU(data) {
 // RWY FROM WIND
 // =====================================================
 
-function computeRunwayFromWind(wdir) {
-  const rwy = Math.round(wdir / 10);
-  return rwy.toString().padStart(2, "0");
+function computeRunwayFromWind(wdir, airportKey) {
+  const ap = AIRPORTS[airportKey];
+  if (!ap || !ap.runways) return "---";
+
+  let bestRunway = "---";
+  let bestDiff = 999;
+
+  ap.runways.forEach(r => {
+    const diff = Math.abs(wdir - r.heading);
+    if (diff < bestDiff) {
+      bestDiff = diff;
+      bestRunway = r.id;
+    }
+  });
+
+  return bestRunway;
 }
 
 // =====================================================
