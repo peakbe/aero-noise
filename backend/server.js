@@ -251,39 +251,34 @@ async function getTaf(icao) {
 }
 
 /* =====================================================
-   AIRLABS SCHEDULES
+   AIRLABS FLIGHTS — version PRO+++
 ===================================================== */
 
-async function getAirLabsSchedules(airport) {
-  const cacheKey = airport.iata;
-  const cached = getCache("airlabs", cacheKey);
-  if (cached) return cached;
+async function getAirLabsFlights(airport) {
 
-  const base = "https://airlabs.co/api/v9/schedules";
+  const API_KEY = process.env.AIRLABS_API_KEY;
 
-  const depParams = new URLSearchParams({
-    dep_iata: airport.iata,
-    api_key: process.env.AIRLABS_API_KEY
-  });
+  // AirLabs — vols départs
+  const urlDep =
+    `https://airlabs.co/api/v9/flights?dep_icao=${airport.icao}&api_key=${API_KEY}`;
 
-  const arrParams = new URLSearchParams({
-    arr_iata: airport.iata,
-    api_key: process.env.AIRLABS_API_KEY
-  });
+  // AirLabs — vols arrivées
+  const urlArr =
+    `https://airlabs.co/api/v9/flights?arr_icao=${airport.icao}&api_key=${API_KEY}`;
 
-  const depRes = await fetch(`${base}?${depParams}`);
-  const arrRes = await fetch(`${base}?${arrParams}`);
+  const depRes = await fetch(urlDep);
+  const arrRes = await fetch(urlArr);
 
-  const depData = depRes.ok ? await depRes.json() : { response: [] };
-  const arrData = arrRes.ok ? await arrRes.json() : { response: [] };
+  const depJson = await depRes.json();
+  const arrJson = await arrRes.json();
 
-  const result = {
-    departures: Array.isArray(depData.response) ? depData.response.slice(0, 10) : [],
-    arrivals: Array.isArray(arrData.response) ? arrData.response.slice(0, 10) : []
+  const departures = depJson.response || [];
+  const arrivals = arrJson.response || [];
+
+  return {
+    arrivals,
+    departures
   };
-
-  setCache("airlabs", cacheKey, result);
-  return result;
 }
 
 /* =====================================================
@@ -323,14 +318,14 @@ app.get("/api/flights/:airport", async (req, res) => {
     const airport = AIRPORTS[req.params.airport.toUpperCase()];
     if (!airport) return res.status(404).json({ error: "Aéroport inconnu" });
 
-    const schedules = await getAirLabsSchedules(airport);
+   const flights = await getAirLabsFlights(airport);
 
-    res.json({
-      airport: airport.icao,
-      arrivals: schedules.arrivals,
-      departures: schedules.departures,
-      updatedAt: new Date().toISOString()
-    });
+res.json({
+  airport: airport.icao,
+  arrivals: flights.arrivals,
+  departures: flights.departures,
+  updatedAt: new Date().toISOString()
+});
 
   } catch {
     res.status(500).json({ error: "Erreur interne AirLabs" });
