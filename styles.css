@@ -145,7 +145,7 @@ select:focus {
   padding: 12px;
   color: #00e5ff;
   font-family: monospace;
-  z-index: 9999;
+  z-index: 10;
 }
 
 .mcdu-title {
