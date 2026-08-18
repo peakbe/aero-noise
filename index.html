@@ -10,17 +10,25 @@
 
 <body>
 
-  <!-- SIDEBAR MCDU -->
+  <!-- SIDEBAR MCDU — Jeppesen PRO+++ -->
   <div id="sidebar-mcdu">
 
+    <!-- Titre avionique -->
     <div class="mcdu-title">MCDU / ND — Jeppesen PRO+++</div>
 
+    <!-- WIND -->
     <div id="mcdu-wind" class="mcdu-box"></div>
+
+    <!-- RWY ACTIVE -->
     <div id="mcdu-rwy" class="mcdu-box"></div>
+
+    <!-- TENDANCES TAF -->
     <div id="mcdu-trend" class="mcdu-box"></div>
 
+    <!-- ROSE DES VENTS ND AIRBUS -->
     <canvas id="mcdu-rose" width="220" height="220"></canvas>
 
+    <!-- APT SELECTOR -->
     <div class="mcdu-box">
       APT :
       <select id="airport-select" class="mcdu-select">
@@ -29,6 +37,7 @@
       </select>
     </div>
 
+    <!-- BUTTONS -->
     <div class="mcdu-buttons">
       <button id="btn-recenter" class="mcdu-btn">RCL</button>
       <button id="btn-refresh" class="mcdu-btn">REFRESH</button>
@@ -37,10 +46,10 @@
 
   </div>
 
-  <!-- ✔ La carte doit être ici, en dehors de la sidebar -->
+  <!-- ✔ La carte ND doit être en dehors de la sidebar -->
   <div id="map"></div>
 
-  <!-- PANELS -->
+  <!-- PANELS METAR / TAF / WX / FIDS -->
   <div class="panel">
     <h2>METAR</h2>
     <div id="metar-box" class="data-box"></div>
@@ -71,5 +80,4 @@
   <script type="module" src="app.js"></script>
 
 </body>
-
 </html>
