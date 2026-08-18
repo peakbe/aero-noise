@@ -254,17 +254,19 @@ async function getTaf(icao) {
    AIRLABS FLIGHTS — version PRO+++
 ===================================================== */
 
+/* =====================================================
+   AIRLABS SCHEDULES — version PRO+++
+===================================================== */
+
 async function getAirLabsFlights(airport) {
 
   const API_KEY = process.env.AIRLABS_API_KEY;
 
-  // AirLabs — vols départs
   const urlDep =
-    `https://airlabs.co/api/v9/flights?dep_icao=${airport.icao}&api_key=${API_KEY}`;
+    `https://airlabs.co/api/v9/schedules?dep_icao=${airport.icao}&api_key=${API_KEY}`;
 
-  // AirLabs — vols arrivées
   const urlArr =
-    `https://airlabs.co/api/v9/flights?arr_icao=${airport.icao}&api_key=${API_KEY}`;
+    `https://airlabs.co/api/v9/schedules?arr_icao=${airport.icao}&api_key=${API_KEY}`;
 
   const depRes = await fetch(urlDep);
   const arrRes = await fetch(urlArr);
