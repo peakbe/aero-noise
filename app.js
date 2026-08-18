@@ -358,11 +358,8 @@ function drawWindRose(wdir, wspd) {
   ctx.lineTo(200, 110);
   ctx.stroke();
 
-  // ✔ vitesse du vent en m/s
-  if (wspd !== undefined) {
-    ctx.fillStyle = "#32ff7e";
-    ctx.font = "14px monospace";
-    }
+  // ✔ Plus de texte dans la rose ND
+  // (la vitesse est maintenant dans mcdu-wind-ms)
 
   if (wdir !== undefined) {
     const rad = (wdir - 90) * Math.PI / 180;
@@ -377,4 +374,5 @@ function drawWindRose(wdir, wspd) {
     ctx.stroke();
   }
 }
+
 
