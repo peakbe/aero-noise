@@ -191,6 +191,47 @@ function updateFlightsUI(data) {
     .join("") || "Aucun départ";
 }
 
+ // vols confirmés (Arrivées + Départs) side-bar
+  function updateSidebarFids(data) {
+  const arrEl = document.getElementById("mcdu-fids-arr");
+  const depEl = document.getElementById("mcdu-fids-dep");
+
+  const arrivals = (data.arrivals || []).slice(0, 10);
+  const departures = (data.departures || []).slice(0, 10);
+
+  arrEl.innerHTML = arrivals.map(f => {
+    const status = (f.status || "").toLowerCase();
+    let cls = "mcdu-fids-row";
+
+    if (status.includes("delay")) cls += " mcdu-fids-delay";
+    if (status.includes("cancel")) cls += " mcdu-fids-cancel";
+
+    return `
+      <div class="${cls}">
+        <span>${f.flight_iata || f.flight_icao || "—"}</span>
+        <span>${f.dep_iata || "??"} → ${f.arr_iata || "??"}</span>
+        <span>${f.arr_time || ""}</span>
+      </div>
+    `;
+  }).join("");
+
+  depEl.innerHTML = departures.map(f => {
+    const status = (f.status || "").toLowerCase();
+    let cls = "mcdu-fids-row";
+
+    if (status.includes("delay")) cls += " mcdu-fids-delay";
+    if (status.includes("cancel")) cls += " mcdu-fids-cancel";
+
+    return `
+      <div class="${cls}">
+        <span>${f.flight_iata || f.flight_icao || "—"}</span>
+        <span>${f.dep_iata || "??"} → ${f.arr_iata || "??"}</span>
+        <span>${f.dep_time || ""}</span>
+      </div>
+    `;
+  }).join("");
+}
+
 // =====================================================
 // MCDU — WIND / RWY / TAF / ROSE ND
 // =====================================================
@@ -291,46 +332,4 @@ function drawWindRose(wdir) {
     ctx.lineTo(x, y);
     ctx.stroke();
   }
-
-  // vols confirmés (Arrivées + Départs) side-bar
-  function updateSidebarFids(data) {
-  const arrEl = document.getElementById("mcdu-fids-arr");
-  const depEl = document.getElementById("mcdu-fids-dep");
-
-  const arrivals = (data.arrivals || []).slice(0, 10);
-  const departures = (data.departures || []).slice(0, 10);
-
-  arrEl.innerHTML = arrivals.map(f => {
-    const status = (f.status || "").toLowerCase();
-    let cls = "mcdu-fids-row";
-
-    if (status.includes("delay")) cls += " mcdu-fids-delay";
-    if (status.includes("cancel")) cls += " mcdu-fids-cancel";
-
-    return `
-      <div class="${cls}">
-        <span>${f.flight_iata || f.flight_icao || "—"}</span>
-        <span>${f.dep_iata || "??"} → ${f.arr_iata || "??"}</span>
-        <span>${f.arr_time || ""}</span>
-      </div>
-    `;
-  }).join("");
-
-  depEl.innerHTML = departures.map(f => {
-    const status = (f.status || "").toLowerCase();
-    let cls = "mcdu-fids-row";
-
-    if (status.includes("delay")) cls += " mcdu-fids-delay";
-    if (status.includes("cancel")) cls += " mcdu-fids-cancel";
-
-    return `
-      <div class="${cls}">
-        <span>${f.flight_iata || f.flight_icao || "—"}</span>
-        <span>${f.dep_iata || "??"} → ${f.arr_iata || "??"}</span>
-        <span>${f.dep_time || ""}</span>
-      </div>
-    `;
-  }).join("");
-}
-
 }
