@@ -288,7 +288,7 @@ function updateMCDU(data) {
   const taf = data.taf?.rawTAF || "";
   trendBox.textContent = extractTrends(taf);
 
-  drawWindRose(wdir);
+  drawWindRose(wdir, wspd);
 
   updateSono(window.currentAirportKey, rwy);
 }
@@ -327,7 +327,7 @@ function computeRunwayFromWind(wdir, airportKey) {
 // ROSE ND AIRBUS
 // =====================================================
 
-function drawWindRose(wdir) {
+function drawWindRose(wdir, wspd) {
   const canvas = document.getElementById("mcdu-rose");
   const ctx = canvas.getContext("2d");
 
@@ -348,10 +348,13 @@ function drawWindRose(wdir) {
   ctx.moveTo(20, 110);
   ctx.lineTo(200, 110);
   ctx.stroke();
-  
-  ctx.fillStyle = "#32ff7e";
-  ctx.font = "14px monospace";
-  ctx.fillText(`${ktToMs(data.metar.wspd)} m/s`, 80, 205);
+
+  // ✔ vitesse du vent en m/s
+  if (wspd !== undefined) {
+    ctx.fillStyle = "#32ff7e";
+    ctx.font = "14px monospace";
+    ctx.fillText(`${ktToMs(wspd)} m/s`, 80, 205);
+  }
 
   if (wdir !== undefined) {
     const rad = (wdir - 90) * Math.PI / 180;
@@ -366,3 +369,4 @@ function drawWindRose(wdir) {
     ctx.stroke();
   }
 }
+
