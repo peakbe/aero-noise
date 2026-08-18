@@ -140,10 +140,16 @@ function updateWeatherUI(data) {
   const weatherBox = document.getElementById("weather-box");
 
   if (data.metar) {
-    metarBox.textContent = data.metar.rawOb || "METAR indisponible";
-  } else {
-    metarBox.textContent = "METAR indisponible";
-  }
+  const kt = data.metar.wspd || 0;
+  const ms = ktToMs(kt);
+  metarBox.innerHTML = `
+    ${data.metar.rawOb}<br>
+    <span style="color:#32ff7e">Vent: ${kt} kt (${ms} m/s)</span>
+  `;
+} else {
+  metarBox.textContent = "METAR indisponible";
+}
+
 
   if (data.taf) {
     tafBox.textContent = data.taf.rawTAF || "TAF indisponible";
@@ -244,6 +250,11 @@ const arrTime =
   }).join("");
 }
 
+// Conversion officielle kt → m/s
+function ktToMs(kt) {
+  return (kt * 0.514444).toFixed(1);
+}
+
 // =====================================================
 // MCDU — WIND / RWY / TAF / ROSE ND
 // =====================================================
@@ -256,9 +267,13 @@ function updateMCDU(data) {
   const wdir = data.metar?.wdir;
   const wspd = data.metar?.wspd;
 
-  windBox.textContent = wdir
-    ? `WIND ${wdir}° / ${wspd}KT`
-    : "WIND ---";
+  if (wdir !== undefined && wspd !== undefined) {
+  const wspdMs = ktToMs(wspd);
+  windBox.textContent = `WIND ${wdir}° / ${wspd}KT (${wspdMs} m/s)`;
+} else {
+  windBox.textContent = "WIND ---";
+}
+
 
   let rwy = "---";
   if (wdir !== undefined) {
@@ -331,6 +346,10 @@ function drawWindRose(wdir) {
   ctx.moveTo(20, 110);
   ctx.lineTo(200, 110);
   ctx.stroke();
+  
+  ctx.fillStyle = "#32ff7e";
+  ctx.font = "14px monospace";
+  ctx.fillText(`${ktToMs(data.metar.wspd)} m/s`, 80, 205);
 
   if (wdir !== undefined) {
     const rad = (wdir - 90) * Math.PI / 180;
