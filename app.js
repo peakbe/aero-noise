@@ -215,7 +215,6 @@ function updateMCDU(data) {
   }
 
   const taf = data.taf?.rawTAF || "";
-  const trends = taf.match(/(BECMG|TEMPO|PROB\d+)/g);
   trendBox.textContent = extractTrends(taf);
 
   drawWindRose(wdir);
