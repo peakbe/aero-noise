@@ -215,6 +215,7 @@ const arrTime =
   f.arr_time ||
   f.arr_time_utc ||
   f.scheduled_arrival_time ||
+  "";
 
     let cls = "mcdu-fids-row";
     if (status.includes("delay")) cls += " mcdu-fids-delay";
@@ -235,6 +236,7 @@ const arrTime =
   f.dep_time ||
   f.dep_time_utc ||
   f.scheduled_departure_time ||
+  "";
 
     let cls = "mcdu-fids-row";
     if (status.includes("delay")) cls += " mcdu-fids-delay";
