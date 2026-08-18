@@ -18,13 +18,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function initUI() {
 
-  // Bouton recentrer
   const btn = document.getElementById("btn-recenter");
-  if (btn) {
-    btn.addEventListener("click", () => resetMapView());
-  }
+  if (btn) btn.addEventListener("click", () => resetMapView());
 
-  // Sélecteur d’aéroport
   const selector = document.getElementById("airport-select");
   if (selector) {
     selector.addEventListener("change", (e) => {
@@ -33,14 +29,12 @@ function initUI() {
   }
 }
 
-// Bouton REFRESH
 document.getElementById("btn-refresh").addEventListener("click", () => {
   loadAirport(window.currentAirportKey);
 });
 
 let sonoEnabled = true;
 
-// Bouton SONO ON/OFF
 document.getElementById("btn-sono").addEventListener("click", () => {
   sonoEnabled = !sonoEnabled;
 
@@ -73,7 +67,7 @@ async function loadAirport(key) {
 }
 
 // =====================================================
-// ✔ Version correcte de setCurrentAirport (à garder)
+// 4) setCurrentAirport
 // =====================================================
 
 export function setCurrentAirport(key) {
@@ -93,7 +87,7 @@ export function setCurrentAirport(key) {
 }
 
 // =====================================================
-// 4) Charger météo
+// 5) Charger météo
 // =====================================================
 
 async function loadWeather(key) {
@@ -111,7 +105,7 @@ async function loadWeather(key) {
 }
 
 // =====================================================
-// 5) Charger vols
+// 6) Charger vols
 // =====================================================
 
 async function loadFlights(key) {
@@ -119,11 +113,9 @@ async function loadFlights(key) {
     const url = `https://aero-noise.onrender.com/api/flights/${key}`;
     const res = await fetch(url);
     const data = await res.json();
-    const flights = data.flights || data; // compatibilité totale
 
-    updateFlightsUI(flights);
-    updateSidebarFids(flights);
-
+    updateFlightsUI(data);
+    updateSidebarFids(data);
 
   } catch (err) {
     console.error("Erreur vols:", err);
@@ -131,7 +123,7 @@ async function loadFlights(key) {
 }
 
 // =====================================================
-// 6) UI METAR / TAF / WX
+// 7) UI METAR / TAF / WX
 // =====================================================
 
 function updateWeatherUI(data) {
@@ -140,16 +132,15 @@ function updateWeatherUI(data) {
   const weatherBox = document.getElementById("weather-box");
 
   if (data.metar) {
-  const kt = data.metar.wspd || 0;
-  const ms = ktToMs(kt);
-  metarBox.innerHTML = `
-    ${data.metar.rawOb}<br>
-    <span style="color:#32ff7e">Vent: ${kt} kt (${ms} m/s)</span>
-  `;
-} else {
-  metarBox.textContent = "METAR indisponible";
-}
-
+    const kt = data.metar.wspd || 0;
+    const ms = ktToMs(kt);
+    metarBox.innerHTML = `
+      ${data.metar.rawOb}<br>
+      <span style="color:#32ff7e">Vent: ${kt} kt (${ms} m/s)</span>
+    `;
+  } else {
+    metarBox.textContent = "METAR indisponible";
+  }
 
   if (data.taf) {
     tafBox.textContent = data.taf.rawTAF || "TAF indisponible";
@@ -171,7 +162,7 @@ function updateWeatherUI(data) {
 }
 
 // =====================================================
-// 7) UI FIDS
+// 8) UI FIDS
 // =====================================================
 
 function updateFlightsUI(data) {
@@ -180,8 +171,8 @@ function updateFlightsUI(data) {
 
   arrBox.innerHTML = (data.arrivals || [])
     .map(f => {
-      const flight = f.flight_iata || f.flight_icao || "—";
-      const route = `${f.dep_iata || "??"} → ${f.arr_iata || "??"}`;
+      const flight = f.flight_iata || f.flight_icao || f.callsign || "—";
+      const route = `${f.dep_iata || f.dep_icao || "??"} → ${f.arr_iata || f.arr_icao || "??"}`;
 
       const arrTime =
         f.arr_time ||
@@ -204,8 +195,8 @@ function updateFlightsUI(data) {
 
   depBox.innerHTML = (data.departures || [])
     .map(f => {
-      const flight = f.flight_iata || f.flight_icao || "—";
-      const route = `${f.dep_iata || "??"} → ${f.arr_iata || "??"}`;
+      const flight = f.flight_iata || f.flight_icao || f.callsign || "—";
+      const route = `${f.dep_iata || f.dep_icao || "??"} → ${f.arr_iata || f.arr_icao || "??"}`;
 
       const depTime =
         f.dep_time ||
@@ -227,8 +218,11 @@ function updateFlightsUI(data) {
     .join("") || "Aucun départ";
 }
 
- // vols confirmés (Arrivées + Départs) side-bar
-  function updateSidebarFids(data) {
+// =====================================================
+// 9) Sidebar FIDS
+// =====================================================
+
+function updateSidebarFids(data) {
   const arrEl = document.getElementById("mcdu-fids-arr");
   const depEl = document.getElementById("mcdu-fids-dep");
 
@@ -239,11 +233,15 @@ function updateFlightsUI(data) {
 
   arrEl.innerHTML = arrivals.map(f => {
     const status = (f.status || f.live?.status || "").toLowerCase();
-const arrTime =
-  f.arr_time ||
-  f.arr_time_utc ||
-  f.scheduled_arrival_time ||
-  "";
+
+    const arrTime =
+      f.arr_time ||
+      f.arr_time_utc ||
+      f.scheduled_arrival_time ||
+      f.arrival?.scheduled ||
+      f.arrival?.estimated ||
+      f.arrival?.actual ||
+      "";
 
     let cls = "mcdu-fids-row";
     if (status.includes("delay")) cls += " mcdu-fids-delay";
@@ -251,8 +249,8 @@ const arrTime =
 
     return `
       <div class="${cls}">
-        <span>${f.flight_iata || f.flight_icao || "—"}</span>
-        <span>${f.dep_iata || "??"} → ${f.arr_iata || "??"}</span>
+        <span>${f.flight_iata || f.flight_icao || f.callsign || "—"}</span>
+        <span>${f.dep_iata || f.dep_icao || "??"} → ${f.arr_iata || f.arr_icao || "??"}</span>
         <span>${arrTime}</span>
       </div>
     `;
@@ -260,11 +258,15 @@ const arrTime =
 
   depEl.innerHTML = departures.map(f => {
     const status = (f.status || f.live?.status || "").toLowerCase();
+
     const depTime =
-  f.dep_time ||
-  f.dep_time_utc ||
-  f.scheduled_departure_time ||
-  "";
+      f.dep_time ||
+      f.dep_time_utc ||
+      f.scheduled_departure_time ||
+      f.departure?.scheduled ||
+      f.departure?.estimated ||
+      f.departure?.actual ||
+      "";
 
     let cls = "mcdu-fids-row";
     if (status.includes("delay")) cls += " mcdu-fids-delay";
@@ -272,15 +274,18 @@ const arrTime =
 
     return `
       <div class="${cls}">
-        <span>${f.flight_iata || f.flight_icao || "—"}</span>
-        <span>${f.dep_iata || "??"} → ${f.arr_iata || "??"}</span>
+        <span>${f.flight_iata || f.flight_icao || f.callsign || "—"}</span>
+        <span>${f.dep_iata || f.dep_icao || "??"} → ${f.arr_iata || f.arr_icao || "??"}</span>
         <span>${depTime}</span>
       </div>
     `;
   }).join("");
 }
 
-// Conversion officielle kt → m/s
+// =====================================================
+// Conversion kt → m/s
+// =====================================================
+
 function ktToMs(kt) {
   return (kt * 0.514444).toFixed(1);
 }
@@ -298,7 +303,6 @@ function updateMCDU(data) {
   const wdir = data.metar?.wdir;
   const wspd = data.metar?.wspd;
 
-  // WIND (kt + m/s)
   if (wdir !== undefined && wspd !== undefined) {
     const wspdMs = ktToMs(wspd);
     windBox.textContent = `WIND ${wdir}° / ${wspd}KT (${wspdMs} m/s)`;
@@ -308,7 +312,6 @@ function updateMCDU(data) {
     windMsBox.textContent = "WIND SPEED: ---";
   }
 
-  // RWY AUTO
   let rwy = "---";
   if (wdir !== undefined) {
     rwy = computeRunwayFromWind(wdir, window.currentAirportKey);
@@ -317,19 +320,16 @@ function updateMCDU(data) {
     rwyBox.textContent = "RWY ---";
   }
 
-  // TAF TRENDS
   const taf = data.taf?.rawTAF || "";
   trendBox.textContent = extractTrends(taf);
 
-  // ROSE ND
   drawWindRose(wdir, wspd);
 
-  // SONO
   updateSono(window.currentAirportKey, rwy);
 }
 
 // =====================================================
-// TAF — Extraction des tendances (BECMG / TEMPO / PROB)
+// TAF — Extraction tendances
 // =====================================================
 
 function extractTrends(rawTAF) {
@@ -373,14 +373,12 @@ function drawWindRose(wdir, wspd) {
 
   ctx.clearRect(0, 0, 220, 220);
 
-  // Cercle ND
   ctx.strokeStyle = "#00e5ff";
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.arc(110, 110, 90, 0, Math.PI * 2);
   ctx.stroke();
 
-  // Axes
   ctx.beginPath();
   ctx.moveTo(110, 20);
   ctx.lineTo(110, 200);
@@ -391,7 +389,6 @@ function drawWindRose(wdir, wspd) {
   ctx.lineTo(200, 110);
   ctx.stroke();
 
-  // Vent
   if (wdir !== undefined) {
     const rad = (wdir - 90) * Math.PI / 180;
     const x = 110 + Math.cos(rad) * 70;
@@ -405,5 +402,3 @@ function drawWindRose(wdir, wspd) {
     ctx.stroke();
   }
 }
-
-
