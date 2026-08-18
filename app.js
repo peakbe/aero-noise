@@ -179,23 +179,51 @@ function updateFlightsUI(data) {
   const depBox = document.getElementById("departures-box");
 
   arrBox.innerHTML = (data.arrivals || [])
-    .map(f => `
-      <div>
-        <span>${f.flight_iata || f.flight_icao || "—"}</span>
-        <span>${f.dep_iata || "??"} → ${f.arr_iata || "??"}</span>
-        <span>${f.arr_time || ""}</span>
-      </div>
-    `)
+    .map(f => {
+      const flight = f.flight_iata || f.flight_icao || "—";
+      const route = `${f.dep_iata || "??"} → ${f.arr_iata || "??"}`;
+
+      const arrTime =
+        f.arr_time ||
+        f.arr_time_utc ||
+        f.scheduled_arrival_time ||
+        f.arrival?.scheduled ||
+        f.arrival?.estimated ||
+        f.arrival?.actual ||
+        "";
+
+      return `
+        <div>
+          <span>${flight}</span>
+          <span>${route}</span>
+          <span>${arrTime}</span>
+        </div>
+      `;
+    })
     .join("") || "Aucune arrivée";
 
   depBox.innerHTML = (data.departures || [])
-    .map(f => `
-      <div>
-        <span>${f.flight_iata || f.flight_icao || "—"}</span>
-        <span>${f.dep_iata || "??"} → ${f.arr_iata || "??"}</span>
-        <span>${f.dep_time || ""}</span>
-      </div>
-    `)
+    .map(f => {
+      const flight = f.flight_iata || f.flight_icao || "—";
+      const route = `${f.dep_iata || "??"} → ${f.arr_iata || "??"}`;
+
+      const depTime =
+        f.dep_time ||
+        f.dep_time_utc ||
+        f.scheduled_departure_time ||
+        f.departure?.scheduled ||
+        f.departure?.estimated ||
+        f.departure?.actual ||
+        "";
+
+      return `
+        <div>
+          <span>${flight}</span>
+          <span>${route}</span>
+          <span>${depTime}</span>
+        </div>
+      `;
+    })
     .join("") || "Aucun départ";
 }
 
