@@ -261,6 +261,10 @@ async function getFlightsFusion(airport) {
   if (airlabs.arrivals.length || airlabs.departures.length) {
     return airlabs;
   }
+   if (!API_KEY) {
+  console.error("AirLabs API_KEY manquant");
+  return { arrivals: [], departures: [] };
+}
 
   // 2) AviationStack
   const avstack = await getAviationStackFlights(airport);
@@ -287,7 +291,7 @@ async function getAviationStackFlights(airport) {
   const API_KEY = process.env.AVIATIONSTACK_KEY;
 
   const url =
-    `http://api.aviationstack.com/v1/flights?dep_iata=${airport.iata}&access_key=${API_KEY}`;
+  `https://api.aviationstack.com/v1/flights?dep_iata=${airport.iata}&access_key=${API_KEY}`;
 
   try {
     const res = await fetch(url);
@@ -311,14 +315,25 @@ async function getAviationStackFlights(airport) {
 ===================================================== */
 
 async function getOpenSkyFlights(airport) {
-  const url = `https://opensky-network.org/api/flights/departure?airport=${airport.icao}&begin=${Math.floor(Date.now()/1000 - 3600)}&end=${Math.floor(Date.now()/1000)}`;
+  const begin = Math.floor(Date.now() / 1000 - 3600);
+  const end   = Math.floor(Date.now() / 1000);
+
+  const url =
+    `https://opensky-network.org/api/flights/departure?airport=${airport.icao}&begin=${begin}&end=${end}`;
 
   try {
     const res = await fetch(url);
-    const flights = await res.json();
 
+    // Vérifier si la réponse est JSON
+    const text = await res.text();
+    if (!text.startsWith("[") && !text.startsWith("{")) {
+      console.warn("OpenSky non-JSON:", text.slice(0, 80));
+      return { arrivals: [], departures: [] };
+    }
+
+    const flights = JSON.parse(text);
     return {
-      arrivals: [], // OpenSky arrivals endpoint is unreliable
+      arrivals: [],
       departures: flights || []
     };
 
@@ -365,7 +380,8 @@ app.get("/api/flights/:airport", async (req, res) => {
     const airport = AIRPORTS[req.params.airport.toUpperCase()];
     if (!airport) return res.status(404).json({ error: "Aéroport inconnu" });
 
-    const flights = await getFlightsFusion(airport);
+    let airlabs = { arrivals: [], departures: [] };
+try { airlabs = await getAirLabsFlights(airport); } catch(e) {}
 
     res.json({
       airport: airport.icao,
