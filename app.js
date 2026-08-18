@@ -263,20 +263,24 @@ function ktToMs(kt) {
 
 function updateMCDU(data) {
   const windBox = document.getElementById("mcdu-wind");
+  const windMsBox = document.getElementById("mcdu-wind-ms");
   const rwyBox = document.getElementById("mcdu-rwy");
   const trendBox = document.getElementById("mcdu-trend");
 
   const wdir = data.metar?.wdir;
   const wspd = data.metar?.wspd;
 
+  // WIND (kt + m/s)
   if (wdir !== undefined && wspd !== undefined) {
-  const wspdMs = ktToMs(wspd);
-  windBox.textContent = `WIND ${wdir}° / ${wspd}KT (${wspdMs} m/s)`;
-} else {
-  windBox.textContent = "WIND ---";
-}
+    const wspdMs = ktToMs(wspd);
+    windBox.textContent = `WIND ${wdir}° / ${wspd}KT (${wspdMs} m/s)`;
+    windMsBox.textContent = `WIND SPEED: ${wspdMs} m/s`;
+  } else {
+    windBox.textContent = "WIND ---";
+    windMsBox.textContent = "WIND SPEED: ---";
+  }
 
-
+  // RWY AUTO
   let rwy = "---";
   if (wdir !== undefined) {
     rwy = computeRunwayFromWind(wdir, window.currentAirportKey);
@@ -285,29 +289,15 @@ function updateMCDU(data) {
     rwyBox.textContent = "RWY ---";
   }
 
+  // TAF TRENDS
   const taf = data.taf?.rawTAF || "";
   trendBox.textContent = extractTrends(taf);
 
+  // ROSE ND
   drawWindRose(wdir, wspd);
 
+  // SONO
   updateSono(window.currentAirportKey, rwy);
-}
-// Ajout des tendances météo à venir (TAF)
-function extractTrends(rawTAF) {
-  if (!rawTAF) return "NO TREND";
-
-  const blocks = rawTAF.match(/(BECMG|TEMPO|PROB\d+|FM\d+|TL\d+|AT\d+)[^A-Z]*/g);
-  if (!blocks) return "NO TREND";
-
-  return blocks.join(" | ");
-}
-const windMsBox = document.getElementById("mcdu-wind-ms");
-
-if (wdir !== undefined && wspd !== undefined) {
-  const wspdMs = ktToMs(wspd);
-  windMsBox.textContent = `WIND SPEED: ${wspdMs} m/s`;
-} else {
-  windMsBox.textContent = "WIND SPEED: ---";
 }
 
 // =====================================================
@@ -342,12 +332,14 @@ function drawWindRose(wdir, wspd) {
 
   ctx.clearRect(0, 0, 220, 220);
 
+  // Cercle ND
   ctx.strokeStyle = "#00e5ff";
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.arc(110, 110, 90, 0, Math.PI * 2);
   ctx.stroke();
 
+  // Axes
   ctx.beginPath();
   ctx.moveTo(110, 20);
   ctx.lineTo(110, 200);
@@ -358,9 +350,7 @@ function drawWindRose(wdir, wspd) {
   ctx.lineTo(200, 110);
   ctx.stroke();
 
-  // ✔ Plus de texte dans la rose ND
-  // (la vitesse est maintenant dans mcdu-wind-ms)
-
+  // Vent
   if (wdir !== undefined) {
     const rad = (wdir - 90) * Math.PI / 180;
     const x = 110 + Math.cos(rad) * 70;
