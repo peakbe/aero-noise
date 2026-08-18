@@ -301,6 +301,15 @@ function extractTrends(rawTAF) {
 
   return blocks.join(" | ");
 }
+const windMsBox = document.getElementById("mcdu-wind-ms");
+
+if (wdir !== undefined && wspd !== undefined) {
+  const wspdMs = ktToMs(wspd);
+  windMsBox.textContent = `WIND SPEED: ${wspdMs} m/s`;
+} else {
+  windMsBox.textContent = "WIND SPEED: ---";
+}
+
 // =====================================================
 // RWY FROM WIND
 // =====================================================
@@ -353,8 +362,7 @@ function drawWindRose(wdir, wspd) {
   if (wspd !== undefined) {
     ctx.fillStyle = "#32ff7e";
     ctx.font = "14px monospace";
-    ctx.fillText(`${ktToMs(wspd)} m/s`, 80, 205);
-  }
+    }
 
   if (wdir !== undefined) {
     const rad = (wdir - 90) * Math.PI / 180;
