@@ -205,7 +205,10 @@ function updateFlightsUI(data) {
 
   arrEl.innerHTML = arrivals.map(f => {
     const status = (f.status || f.live?.status || "").toLowerCase();
-    const arrTime = f.arr_time || f.arr_time_utc || f.scheduled_arrival_time || "";
+const arrTime =
+  f.arr_time ||
+  f.arr_time_utc ||
+  f.scheduled_arrival_time ||
 
     let cls = "mcdu-fids-row";
     if (status.includes("delay")) cls += " mcdu-fids-delay";
@@ -222,7 +225,10 @@ function updateFlightsUI(data) {
 
   depEl.innerHTML = departures.map(f => {
     const status = (f.status || f.live?.status || "").toLowerCase();
-    const depTime = f.dep_time || f.dep_time_utc || f.scheduled_departure_time || "";
+    const depTime =
+  f.dep_time ||
+  f.dep_time_utc ||
+  f.scheduled_departure_time ||
 
     let cls = "mcdu-fids-row";
     if (status.includes("delay")) cls += " mcdu-fids-delay";
