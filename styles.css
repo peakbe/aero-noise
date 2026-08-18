@@ -1,167 +1,71 @@
 /* =====================================================
-   JEPPESEN — Thème avionique PRO+++ (HTML simple)
+   AIRBUS A320 — Thème avionique ULTRA‑RÉALISTE
+   ND (cyan), FD (vert), Warnings (amber/rouge)
 ===================================================== */
 
 :root {
-  --bg-main: #0a0d14;          /* Bleu nuit Jeppesen */
-  --bg-panel: #11141c;         /* Panel avionique */
-  --bg-box: #0c1018;           /* Boîtes METAR/TAF/WX */
-  --border-main: #00e5ff;      /* Cyan IFR */
-  --text-main: #00e5ff;        /* Texte principal */
-  --text-muted: #7fdfff;       /* Texte secondaire */
-  --accent: #32ff7e;           /* Vert Airbus */
-}
-
-* {
-  box-sizing: border-box;
+  --airbus-bg: #0a0d14;          /* Fond cockpit Airbus */
+  --airbus-panel: #11141c;       /* Panneaux EFIS */
+  --airbus-box: #0c1018;         /* Boîtes MCDU/ND */
+  --airbus-cyan: #00e5ff;        /* ND Airbus (cyan) */
+  --airbus-green: #32ff7e;       /* FD / Flight Director */
+  --airbus-amber: #ffb000;       /* Warnings amber */
+  --airbus-red: #ff0033;         /* Master Warning */
+  --airbus-muted: #7fdfff;       /* Texte secondaire */
 }
 
 body {
   margin: 0;
-  background: var(--bg-main);
-  color: var(--text-main);
+  background: var(--airbus-bg);
+  color: var(--airbus-cyan);
   font-family: monospace;
 }
 
 /* =====================================================
-   PANELS (METAR / TAF / WX / FIDS)
-===================================================== */
-
-.panel {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border-main);
-  background: var(--bg-panel);
-  margin-left: 260px; /* ✔ Panels décalés à droite de la sidebar */
-}
-
-.panel h2 {
-  margin: 0 0 6px 0;
-  font-size: 16px;
-  color: var(--accent);
-  letter-spacing: 1px;
-}
-
-.data-box {
-  background: var(--bg-box);
-  padding: 10px;
-  border: 1px solid var(--border-main);
-  margin-bottom: 12px;
-  min-height: 32px;
-  font-size: 13px;
-  color: var(--text-main);
-}
-
-/* METAR / TAF monospace */
-.mono {
-  font-family: monospace;
-  white-space: pre-wrap;
-}
-
-/* =====================================================
-   FIDS (Arrivées / Départs)
-===================================================== */
-
-.fids-list div {
-  display: flex;
-  justify-content: space-between;
-  border-bottom: 1px dashed #1a1f28;
-  padding: 4px 0;
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.fids-list div span:first-child {
-  color: var(--accent);
-}
-
-/* =====================================================
-   SIDEBAR MCDU — JEPPESEN PRO+++
+   SIDEBAR MCDU — Airbus style
 ===================================================== */
 
 #sidebar-mcdu {
-  position: fixed; /* ✔ Fixe, ne bouge plus */
+  position: fixed;
   left: 0;
   top: 0;
   width: 260px;
   height: 100vh;
   background: #0a0d14;
-  border-right: 2px solid #00e5ff;
+  border-right: 2px solid var(--airbus-cyan);
   padding: 12px;
-  color: #00e5ff;
-  font-family: monospace;
-  z-index: 1000; /* ✔ Toujours au-dessus */
+  z-index: 1000;
 }
 
 .mcdu-title {
   font-size: 18px;
-  color: #32ff7e;
-  margin-bottom: 12px;
+  color: var(--airbus-green); /* FD green */
   text-align: center;
+  margin-bottom: 12px;
 }
 
+/* Boîtes avioniques */
 .mcdu-box {
-  background: #0c1018;
-  border: 1px solid #00e5ff;
+  background: var(--airbus-box);
+  border: 1px solid var(--airbus-cyan);
   padding: 10px;
   margin-bottom: 12px;
   min-height: 40px;
   font-size: 14px;
 }
 
-/* =====================================================
-   Carte ND décalée à droite
-===================================================== */
-
-#map {
-  position: fixed;
-  left: 260px; /* ✔ largeur sidebar */
-  top: 0;
-  width: calc(100vw - 260px);
-  height: 100vh;
-  border-left: 2px solid #00e5ff;
+/* Sélecteur avionique */
+.mcdu-select {
+  width: 100%;
   background: #000;
-  z-index: 1;
-}
-
-/* =====================================================
-   Bouton RECENTER — avionique
-===================================================== */
-
-#btn-recenter {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background: #11141c;
-  border: 2px solid var(--border-main);
-  color: var(--text-main);
-  padding: 6px 12px;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: 0.2s;
-  z-index: 99999; /* ✔ Toujours au-dessus */
-}
-
-#btn-recenter:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-/* =====================================================
-   Labels SONO — ND Airbus PRO+++
-===================================================== */
-
-.sono-label span {
-  display: inline-block;
-  padding: 1px 4px;
-  background: rgba(0, 0, 0, 0.8);
-  border: 1px solid #00e5ff;
-  color: #00e5ff;
-  font-size: 10px;
+  color: var(--airbus-cyan);
+  border: 1px solid var(--airbus-cyan);
+  padding: 4px;
   font-family: monospace;
 }
 
 /* =====================================================
-   MCDU — Boutons avioniques PRO+++
+   Boutons avioniques — style FCU/MCDU
 ===================================================== */
 
 .mcdu-buttons {
@@ -174,27 +78,103 @@ body {
 .mcdu-btn {
   width: 100%;
   background: #0c1018;
-  border: 2px solid #00e5ff;
-  color: #00e5ff;
+  border: 2px solid var(--airbus-cyan);
+  color: var(--airbus-cyan);
   padding: 8px;
-  font-family: monospace;
   font-size: 14px;
-  text-align: center;
   cursor: pointer;
   transition: 0.2s;
 }
 
 .mcdu-btn:hover {
-  border-color: #32ff7e;
-  color: #32ff7e;
+  border-color: var(--airbus-green);
+  color: var(--airbus-green);
 }
 
-/* Sélecteur avionique */
-.mcdu-select {
-  width: 100%;
+/* =====================================================
+   Carte ND Airbus
+===================================================== */
+
+#map {
+  position: fixed;
+  left: 260px;
+  top: 0;
+  width: calc(100vw - 260px);
+  height: 100vh;
   background: #000;
-  color: #00e5ff;
-  border: 1px solid #00e5ff;
-  padding: 4px;
-  font-family: monospace;
+  border-left: 2px solid var(--airbus-cyan);
+  z-index: 1;
+}
+
+/* Bouton RCL avionique */
+#btn-recenter {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: #11141c;
+  border: 2px solid var(--airbus-cyan);
+  color: var(--airbus-cyan);
+  padding: 6px 12px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: 0.2s;
+  z-index: 99999;
+}
+
+#btn-recenter:hover {
+  border-color: var(--airbus-green);
+  color: var(--airbus-green);
+}
+
+/* =====================================================
+   ND — Labels SONO Airbus
+===================================================== */
+
+.sono-label span {
+  display: inline-block;
+  padding: 1px 4px;
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid var(--airbus-cyan);
+  color: var(--airbus-cyan);
+  font-size: 10px;
+}
+
+/* =====================================================
+   PANELS METAR / TAF / WX / FIDS
+===================================================== */
+
+.panel {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--airbus-cyan);
+  background: var(--airbus-panel);
+  margin-left: 260px;
+}
+
+.panel h2 {
+  margin: 0 0 6px 0;
+  font-size: 16px;
+  color: var(--airbus-green); /* FD green */
+}
+
+.data-box {
+  background: var(--airbus-box);
+  padding: 10px;
+  border: 1px solid var(--airbus-cyan);
+  margin-bottom: 12px;
+  min-height: 32px;
+  font-size: 13px;
+}
+
+/* =====================================================
+   Warnings Airbus (amber / red)
+===================================================== */
+
+.warning-amber {
+  color: var(--airbus-amber);
+  border-color: var(--airbus-amber);
+}
+
+.warning-red {
+  color: var(--airbus-red);
+  border-color: var(--airbus-red);
 }
