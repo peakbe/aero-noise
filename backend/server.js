@@ -251,32 +251,81 @@ async function getTaf(icao) {
 }
 
 /* =====================================================
-   AIRLABS SCHEDULES — version PRO+++
+   FLIGHTS FUSION — AirLabs + AviationStack + OpenSky
 ===================================================== */
 
-async function getAirLabsFlights(airport) {
+async function getFlightsFusion(airport) {
 
-  const API_KEY = process.env.AIRLABS_API_KEY;
+  // 1) AirLabs SCHEDULES
+  const airlabs = await getAirLabsFlights(airport);
+  if (airlabs.arrivals.length || airlabs.departures.length) {
+    return airlabs;
+  }
 
-  const urlDep =
-    `https://airlabs.co/api/v9/schedules?dep_icao=${airport.icao}&api_key=${API_KEY}`;
+  // 2) AviationStack
+  const avstack = await getAviationStackFlights(airport);
+  if (avstack.arrivals.length || avstack.departures.length) {
+    return avstack;
+  }
 
-  const urlArr =
-    `https://airlabs.co/api/v9/schedules?arr_icao=${airport.icao}&api_key=${API_KEY}`;
+  // 3) OpenSky
+  const opensky = await getOpenSkyFlights(airport);
+  if (opensky.arrivals.length || opensky.departures.length) {
+    return opensky;
+  }
 
-  const depRes = await fetch(urlDep);
-  const arrRes = await fetch(urlArr);
+  // 4) Fallback propre
+  return { arrivals: [], departures: [] };
+}
 
-  const depJson = await depRes.json();
-  const arrJson = await arrRes.json();
 
-  const departures = depJson.response || [];
-  const arrivals = arrJson.response || [];
+/* =====================================================
+   AVIATIONSTACK — Fallback PRO+++
+===================================================== */
 
-  return {
-    arrivals,
-    departures
-  };
+async function getAviationStackFlights(airport) {
+  const API_KEY = process.env.AVIATIONSTACK_KEY;
+
+  const url =
+    `http://api.aviationstack.com/v1/flights?dep_iata=${airport.iata}&access_key=${API_KEY}`;
+
+  try {
+    const res = await fetch(url);
+    const json = await res.json();
+
+    const flights = json.data || [];
+
+    return {
+      arrivals: flights.filter(f => f.arrival?.iata === airport.iata),
+      departures: flights.filter(f => f.departure?.iata === airport.iata)
+    };
+
+  } catch (err) {
+    console.error("AviationStack error:", err);
+    return { arrivals: [], departures: [] };
+  }
+}
+
+/* =====================================================
+   OPEN SKY — Fallback PRO+++
+===================================================== */
+
+async function getOpenSkyFlights(airport) {
+  const url = `https://opensky-network.org/api/flights/departure?airport=${airport.icao}&begin=${Math.floor(Date.now()/1000 - 3600)}&end=${Math.floor(Date.now()/1000)}`;
+
+  try {
+    const res = await fetch(url);
+    const flights = await res.json();
+
+    return {
+      arrivals: [], // OpenSky arrivals endpoint is unreliable
+      departures: flights || []
+    };
+
+  } catch (err) {
+    console.error("OpenSky error:", err);
+    return { arrivals: [], departures: [] };
+  }
 }
 
 /* =====================================================
@@ -316,7 +365,7 @@ app.get("/api/flights/:airport", async (req, res) => {
     const airport = AIRPORTS[req.params.airport.toUpperCase()];
     if (!airport) return res.status(404).json({ error: "Aéroport inconnu" });
 
-    const flights = await getAirLabsFlights(airport);
+    const flights = await getFlightsFusion(airport);
 
     res.json({
       airport: airport.icao,
