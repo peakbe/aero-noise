@@ -251,10 +251,6 @@ async function getTaf(icao) {
 }
 
 /* =====================================================
-   AIRLABS FLIGHTS — version PRO+++
-===================================================== */
-
-/* =====================================================
    AIRLABS SCHEDULES — version PRO+++
 ===================================================== */
 
@@ -320,14 +316,14 @@ app.get("/api/flights/:airport", async (req, res) => {
     const airport = AIRPORTS[req.params.airport.toUpperCase()];
     if (!airport) return res.status(404).json({ error: "Aéroport inconnu" });
 
-   const flights = await getAirLabsFlights(airport);
+    const flights = await getAirLabsFlights(airport);
 
-res.json({
-  airport: airport.icao,
-  arrivals: flights.arrivals,
-  departures: flights.departures,
-  updatedAt: new Date().toISOString()
-});
+    res.json({
+      airport: airport.icao,
+      arrivals: flights.arrivals,
+      departures: flights.departures,
+      updatedAt: new Date().toISOString()
+    });
 
   } catch {
     res.status(500).json({ error: "Erreur interne AirLabs" });
