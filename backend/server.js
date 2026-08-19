@@ -3,6 +3,17 @@
 require("dotenv").config();
 
 const express = require("express");
+const express = require("express");
+const app = express();
+
+// CORS PRO+++
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "https://peakbe.github.io");
+  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type");
+  next();
+});
+
 const cors = require("cors");
 const fetch = require("node-fetch");
 
