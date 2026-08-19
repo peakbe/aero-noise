@@ -1,9 +1,12 @@
-// map.js — carte ND / radar PRO+++
+// map.js — ND / SONO / Runways — Version PRO+++ Airbus
 
-// ⚙️ Initialisation carte
+/* =====================================================
+   1) MAP — Initialisation ND Airbus
+===================================================== */
+
 let map;
 
-// Aéroports pour centrage carte (version simple)
+// Aéroports ND (centrage + popup)
 window.airports = {
   EBCI: { icao: "EBCI", lat: 50.4592, lon: 4.4538 },
   EBLG: { icao: "EBLG", lat: 50.6374, lon: 5.4432 }
@@ -31,7 +34,10 @@ export function initMap() {
   window.map = map;
 }
 
-// 🧭 Recentrer sur l’aéroport actif
+/* =====================================================
+   2) ND — Recentrage Airbus
+===================================================== */
+
 export function resetMapView() {
   if (!map) return;
 
@@ -45,7 +51,10 @@ export function resetMapView() {
   }
 }
 
-// ✈️ Ajout marker METAR/TAF
+/* =====================================================
+   3) ND — Marker METAR/TAF
+===================================================== */
+
 export function addAirportMarker(key) {
   const ap = window.airports[key];
   if (!ap || !map) return;
@@ -55,12 +64,15 @@ export function addAirportMarker(key) {
     .bindPopup(`${ap.icao}`);
 }
 
-// =====================================================
-// AEROPORTS — données complètes (runways + sonomètres)
-// =====================================================
+/* =====================================================
+   4) AÉROPORTS — Données complètes (runways + sonomètres)
+===================================================== */
 
 const AIRPORTS = {
 
+  /* ============================
+     EBCI — Charleroi
+  ============================ */
   EBCI: {
     name: "Brussels South Charleroi",
     city: "Charleroi",
@@ -68,8 +80,8 @@ const AIRPORTS = {
     lon: 4.4538,
 
     runways: [
-      { id: "24", heading: 240, label: "Piste 24" },
-      { id: "06", heading: 60,  label: "Piste 06" }
+      { id: "24", heading: 240 },
+      { id: "06", heading: 60 }
     ],
 
     sonometers: [
@@ -104,6 +116,9 @@ const AIRPORTS = {
     }
   },
 
+  /* ============================
+     EBLG — Liège Airport
+  ============================ */
   EBLG: {
     name: "Liège Airport",
     city: "Liège",
@@ -111,8 +126,8 @@ const AIRPORTS = {
     lon: 5.4432,
 
     runways: [
-      { id: "22", heading: 220, label: "Piste 22" },
-      { id: "04", heading: 40,  label: "Piste 04" }
+      { id: "22", heading: 220 },
+      { id: "04", heading: 40 }
     ],
 
     sonometers: [
@@ -124,15 +139,15 @@ const AIRPORTS = {
       { id:"F006", address:"Rue Bolly Chapon 11, Seraing", lat:50.6095944, lon:5.2714028 },
       { id:"F007", address:"Rue Yernawe 13, St Georges", lat:50.5907556, lon:5.345225 },
       { id:"F008", address:"Rue Warfusée 5, St Georges", lat:50.5948778, lon:5.35895 },
-      { id:"F009", address:"Bibliothèque Communale, Place Verte, 4470 Stockay", lat:50.5808306, lon:5.3554167 },
+      { id:"F009", address:"Bibliothèque Communale, Place Verte, Stockay", lat:50.5808306, lon:5.3554167 },
       { id:"F010", address:"Rue Haute Voie 23, Verlaine", lat:50.5993917, lon:5.3134917 },
       { id:"F011", address:"Rue Albert 1er 18, St Georges", lat:50.6011417, lon:5.3558944 },
-      { id:"F012", address:"Rue Barbe d'Or 13, 4317 Aineffe", lat:50.6219167, lon:5.2547472 },
+      { id:"F012", address:"Rue Barbe d'Or 13, Aineffe", lat:50.6219167, lon:5.2547472 },
       { id:"F013", address:"Rue Bois Léon 31, Verlaine", lat:50.5869139, lon:5.3086778 },
       { id:"F014", address:"Rue Léon Labye 12, Juprelle", lat:50.7188944, lon:5.5731639 },
       { id:"F015", address:"Rue du Brouck 5, Juprelle", lat:50.6888389, lon:5.5262167 },
       { id:"F016", address:"Rue de Chapon-Seraing 14, Verlaine", lat:50.6196167, lon:5.2953444 },
-      { id:"F017", address:"Rue de la Pommeraie, 4690 Wonck", lat:50.7648833, lon:5.6306056 }
+      { id:"F017", address:"Rue de la Pommeraie, Wonck", lat:50.7648833, lon:5.6306056 }
     ],
 
     conditions: {
@@ -146,14 +161,13 @@ const AIRPORTS = {
       }
     }
   }
-
 };
 
 window.AIRPORTS = AIRPORTS;
 
-// =====================================================
-// SONOMETRES — ND Airbus PRO+++ avec labels
-// =====================================================
+/* =====================================================
+   5) SONO — ND Airbus PRO+++ (labels + couleurs)
+===================================================== */
 
 let sonoLayer = L.layerGroup();
 window.sonoLayer = sonoLayer;
