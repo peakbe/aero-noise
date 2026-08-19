@@ -3,6 +3,12 @@
 import { initMap, resetMapView, addAirportMarker, updateSono } from "./map.js";
 
 // =====================================================
+// CONFIG — API Railway
+// =====================================================
+
+const API_BASE = "https://aero-noise-production.up.railway.app";
+
+// =====================================================
 // 1) INITIALISATION
 // =====================================================
 
@@ -92,7 +98,7 @@ export function setCurrentAirport(key) {
 
 async function loadWeather(key) {
   try {
-    const url = `https://aero-noise-production.up.railway.app/api/weather/${key}`;
+    const url = `${API_BASE}/api/weather/${key}`;
 
     const res = await fetch(url);
     const data = await res.json();
@@ -111,7 +117,7 @@ async function loadWeather(key) {
 
 async function loadFlights(key) {
   try {
-    const url = `https://aero-noise-production.up.railway.app/api/flights/${key}`;
+    const url = `${API_BASE}/api/flights/${key}`;
 
     const res = await fetch(url);
     const data = await res.json();
