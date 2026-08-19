@@ -289,3 +289,4 @@ app.get("/api/flights/:airport", async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Dashboard API disponible sur http://localhost:${PORT}`);
 });
+
