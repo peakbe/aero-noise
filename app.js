@@ -92,7 +92,8 @@ export function setCurrentAirport(key) {
 
 async function loadWeather(key) {
   try {
-    const url = `aero-noise-production.up.railway.app/api/weather/${key}`;
+    const url = `https://aero-noise-production.up.railway.app/api/weather/${key}`;
+
     const res = await fetch(url);
     const data = await res.json();
 
@@ -110,7 +111,8 @@ async function loadWeather(key) {
 
 async function loadFlights(key) {
   try {
-    const url = `aero-noise-production.up.railway.app/api/flights/${key}`;
+    const url = `https://aero-noise-production.up.railway.app/api/flights/${key}`;
+
     const res = await fetch(url);
     const data = await res.json();
 
