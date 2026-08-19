@@ -1,42 +1,31 @@
-// server.js — Version PRO+++ Render + GitHub Pages
+// server.js — Version PRO+++ Railway + GitHub Pages
 
 require("dotenv").config();
 
 const express = require("express");
-const app = express();
-
-// CORS PRO+++
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "https://peakbe.github.io");
-  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type");
-  next();
-});
-
 const cors = require("cors");
 const fetch = require("node-fetch");
 
 const app = express();
 
 /* =====================================================
-   CORS PRO+++ (GitHub Pages + Render)
+   CORS PRO+++ (GitHub Pages + Railway)
 ===================================================== */
 
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Origin", "https://peakbe.github.io");
   res.header("Access-Control-Allow-Methods", "GET, OPTIONS");
   res.header("Access-Control-Allow-Headers", "Content-Type");
   next();
 });
 
 app.options("*", (req, res) => {
-  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Origin", "https://peakbe.github.io");
   res.header("Access-Control-Allow-Methods", "GET, OPTIONS");
   res.header("Access-Control-Allow-Headers", "Content-Type");
   res.sendStatus(200);
 });
 
-app.use(cors({ origin: "*", methods: ["GET"], allowedHeaders: ["Content-Type"] }));
 app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
@@ -78,7 +67,7 @@ async function safeFetch(url) {
 }
 
 /* =====================================================
-   OPENWEATHER — PRO+++ SAFE
+   OPENWEATHER — SAFE
 ===================================================== */
 
 async function getOpenWeather(airport) {
@@ -102,7 +91,7 @@ async function getOpenWeather(airport) {
 }
 
 /* =====================================================
-   METAR — AviationWeather + FAA fallback + SAFE
+   METAR — SAFE
 ===================================================== */
 
 async function getMetar(icao) {
@@ -122,7 +111,7 @@ async function getMetar(icao) {
 }
 
 /* =====================================================
-   TAF — AviationWeather + FAA fallback + SAFE
+   TAF — SAFE
 ===================================================== */
 
 async function getTaf(icao) {
@@ -140,7 +129,7 @@ async function getTaf(icao) {
 }
 
 /* =====================================================
-   AIRLABS SCHEDULES — SAFE
+   AIRLABS — SAFE
 ===================================================== */
 
 async function getAirLabsFlights(airport) {
@@ -206,7 +195,7 @@ async function getOpenSkyFlights(airport) {
 }
 
 /* =====================================================
-   FUSION PRO+++ — NE PLANTE JAMAIS
+   FUSION — SAFE
 ===================================================== */
 
 async function getFlightsFusion(airport) {
@@ -247,7 +236,8 @@ app.get("/api/weather/:airport", async (req, res) => {
     });
 
   } catch (err) {
-    res.json({
+    console.error("Erreur API weather:", err);
+    res.status(500).json({
       airport: req.params.airport,
       openWeather: null,
       metar: null,
@@ -271,7 +261,6 @@ app.get("/api/flights/:airport", async (req, res) => {
 
     const flights = await getFlightsFusion(airport);
 
-    // Sécurité : si flights est null ou mal formé
     const arrivals = flights?.arrivals || [];
     const departures = flights?.departures || [];
 
@@ -283,7 +272,7 @@ app.get("/api/flights/:airport", async (req, res) => {
     });
 
   } catch (err) {
-    console.error("Erreur API flights:", err); // LOG Railway
+    console.error("Erreur API flights:", err);
 
     res.status(500).json({
       airport: req.params.airport,
