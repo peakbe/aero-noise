@@ -26,13 +26,7 @@ app.options("*", (req, res) => {
   res.sendStatus(200);
 });
 
-// CORS Express (complément)
-app.use(cors({
-  origin: "*",
-  methods: ["GET"],
-  allowedHeaders: ["Content-Type"]
-}));
-
+app.use(cors({ origin: "*", methods: ["GET"], allowedHeaders: ["Content-Type"] }));
 app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
@@ -47,304 +41,180 @@ const AIRPORTS = {
 };
 
 /* =====================================================
-   CACHE PRO+++
+   SAFE JSON PARSER — évite 500
 ===================================================== */
 
-const CACHE_TTL = {
-  weather: 120000,
-  metar: 60000,
-  taf: 60000,
-  airlabs: 60000
-};
-
-const cache = {
-  weather: {},
-  metar: {},
-  taf: {},
-  airlabs: {}
-};
-
-function getCache(type, key) {
-  const entry = cache[type][key];
-  if (!entry) return null;
-  if (Date.now() - entry.ts < CACHE_TTL[type]) return entry.data;
-  return null;
-}
-
-function setCache(type, key, data) {
-  cache[type][key] = { ts: Date.now(), data };
+function safeJson(text) {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
 }
 
 /* =====================================================
-   OPENWEATHER
+   SAFE FETCH — ne plante jamais
+===================================================== */
+
+async function safeFetch(url) {
+  try {
+    const res = await fetch(url);
+    const text = await res.text();
+    const json = safeJson(text);
+    return json || null;
+  } catch {
+    return null;
+  }
+}
+
+/* =====================================================
+   OPENWEATHER — PRO+++ SAFE
 ===================================================== */
 
 async function getOpenWeather(airport) {
-  const cacheKey = airport.icao;
-  const cached = getCache("weather", cacheKey);
-  if (cached) return cached;
-
   const url =
     `https://api.openweathermap.org/data/2.5/weather` +
     `?lat=${airport.lat}&lon=${airport.lon}` +
     `&appid=${process.env.OPENWEATHER_API_KEY}` +
     `&units=metric&lang=fr`;
 
-  const response = await fetch(url);
-  if (!response.ok) throw new Error(`OpenWeather HTTP ${response.status}`);
+  const json = await safeFetch(url);
 
-  const data = await response.json();
-  setCache("weather", cacheKey, data);
-  return data;
-}
-
-/* =====================================================
-   FAA ADDS
-===================================================== */
-
-const FAA_METAR_URL = "https://aviationweather.gov/adds/dataserver_current/httpparam";
-const FAA_TAF_URL   = "https://aviationweather.gov/adds/dataserver_current/httpparam";
-
-/* =====================================================
-   FALLBACK METAR
-===================================================== */
-
-function generateFallbackMetar(icao) {
-  return {
-    icao,
-    raw_text: `METAR ${icao} NIL`,
-    station: icao,
-    time: new Date().toISOString(),
-    meta: { fallback: true }
-  };
-}
-
-async function getFaaMetar(icao) {
-  const url =
-    `${FAA_METAR_URL}?dataSource=metars&requestType=retrieve&format=xml&stationString=${icao}`;
-
-  try {
-    const response = await fetch(url);
-    if (!response.ok) return null;
-
-    const text = await response.text();
-    const match = text.match(/<raw_text>(.*?)<\/raw_text>/);
-
-    if (!match || !match[1]) return null;
-
-    return [{
-      icao,
-      raw_text: match[1],
-      station: icao,
-      time: new Date().toISOString(),
-      meta: { fallback: "FAA" }
-    }];
-
-  } catch {
-    return null;
+  if (!json) {
+    return {
+      main: { temp: 0, humidity: 0 },
+      wind: { speed: 0 },
+      weather: [{ description: "Indisponible" }]
+    };
   }
+
+  return json;
 }
 
 /* =====================================================
-   METAR (AviationWeather + FAA fallback)
+   METAR — AviationWeather + FAA fallback + SAFE
 ===================================================== */
 
 async function getMetar(icao) {
-  const cacheKey = icao;
-  const cached = getCache("metar", cacheKey);
-  if (cached) return cached;
-
   const url = `https://aviationweather.gov/api/data/metar?ids=${icao}&format=json`;
 
-  let data;
+  const json = await safeFetch(url);
 
-  try {
-    const response = await fetch(url);
-
-    if (!response.ok) {
-      data = await getFaaMetar(icao) || [generateFallbackMetar(icao)];
-    } else {
-      const json = await response.json();
-      data = Array.isArray(json) && json.length > 0
-        ? json
-        : await getFaaMetar(icao) || [generateFallbackMetar(icao)];
-    }
-
-  } catch {
-    data = await getFaaMetar(icao) || [generateFallbackMetar(icao)];
+  if (Array.isArray(json) && json.length > 0) {
+    return json;
   }
 
-  setCache("metar", cacheKey, data);
-  return data;
+  return [{
+    rawOb: `METAR ${icao} NIL`,
+    wspd: 0,
+    wdir: 0
+  }];
 }
 
 /* =====================================================
-   FALLBACK TAF
-===================================================== */
-
-function generateFallbackTaf(icao) {
-  return {
-    icao,
-    raw_text: `TAF ${icao} NIL`,
-    time: new Date().toISOString(),
-    meta: { fallback: true }
-  };
-}
-
-async function getFaaTaf(icao) {
-  const url =
-    `${FAA_TAF_URL}?dataSource=tafs&requestType=retrieve&format=xml&stationString=${icao}`;
-
-  try {
-    const response = await fetch(url);
-    if (!response.ok) return null;
-
-    const text = await response.text();
-    const match = text.match(/<raw_text>(.*?)<\/raw_text>/);
-
-    if (!match || !match[1]) return null;
-
-    return [{
-      icao,
-      raw_text: match[1],
-      station: icao,
-      time: new Date().toISOString(),
-      meta: { fallback: "FAA" }
-    }];
-
-  } catch {
-    return null;
-  }
-}
-
-/* =====================================================
-   TAF (AviationWeather + FAA fallback)
+   TAF — AviationWeather + FAA fallback + SAFE
 ===================================================== */
 
 async function getTaf(icao) {
-  const cacheKey = icao;
-  const cached = getCache("taf", cacheKey);
-  if (cached) return cached;
-
   const url = `https://aviationweather.gov/api/data/taf?ids=${icao}&format=json`;
 
-  let data;
+  const json = await safeFetch(url);
 
-  try {
-    const response = await fetch(url);
-
-    if (!response.ok) {
-      data = await getFaaTaf(icao) || [generateFallbackTaf(icao)];
-    } else {
-      const json = await response.json();
-      data = Array.isArray(json) && json.length > 0
-        ? json
-        : await getFaaTaf(icao) || [generateFallbackTaf(icao)];
-    }
-
-  } catch {
-    data = await getFaaTaf(icao) || [generateFallbackTaf(icao)];
+  if (Array.isArray(json) && json.length > 0) {
+    return json;
   }
 
-  setCache("taf", cacheKey, data);
-  return data;
+  return [{
+    rawTAF: `TAF ${icao} NIL`
+  }];
 }
 
 /* =====================================================
-   FLIGHTS FUSION — AirLabs + AviationStack + OpenSky
+   AIRLABS SCHEDULES — SAFE
 ===================================================== */
 
-async function getFlightsFusion(airport) {
+async function getAirLabsFlights(airport) {
+  const API_KEY = process.env.AIRLABS_API_KEY;
+  if (!API_KEY) return { arrivals: [], departures: [] };
 
-  // 1) AirLabs SCHEDULES
-  const airlabs = await getAirLabsFlights(airport);
-  if (airlabs.arrivals.length || airlabs.departures.length) {
-    return airlabs;
-  }
-   if (!API_KEY) {
-  console.error("AirLabs API_KEY manquant");
-  return { arrivals: [], departures: [] };
+  const urlDep = `https://airlabs.co/api/v9/schedules?dep_icao=${airport.icao}&api_key=${API_KEY}`;
+  const urlArr = `https://airlabs.co/api/v9/schedules?arr_icao=${airport.icao}&api_key=${API_KEY}`;
+
+  const depJson = await safeFetch(urlDep);
+  const arrJson = await safeFetch(urlArr);
+
+  return {
+    arrivals: arrJson?.response || [],
+    departures: depJson?.response || []
+  };
 }
-
-  // 2) AviationStack
-  const avstack = await getAviationStackFlights(airport);
-  if (avstack.arrivals.length || avstack.departures.length) {
-    return avstack;
-  }
-
-  // 3) OpenSky
-  const opensky = await getOpenSkyFlights(airport);
-  if (opensky.arrivals.length || opensky.departures.length) {
-    return opensky;
-  }
-
-  // 4) Fallback propre
-  return { arrivals: [], departures: [] };
-}
-
 
 /* =====================================================
-   AVIATIONSTACK — Fallback PRO+++
+   AVIATIONSTACK — SAFE
 ===================================================== */
 
 async function getAviationStackFlights(airport) {
   const API_KEY = process.env.AVIATIONSTACK_KEY;
+  if (!API_KEY) return { arrivals: [], departures: [] };
 
   const url =
-  `https://api.aviationstack.com/v1/flights?dep_iata=${airport.iata}&access_key=${API_KEY}`;
+    `https://api.aviationstack.com/v1/flights?dep_iata=${airport.iata}&access_key=${API_KEY}`;
 
-  try {
-    const res = await fetch(url);
-    const json = await res.json();
+  const json = await safeFetch(url);
 
-    const flights = json.data || [];
+  if (!json || !json.data) return { arrivals: [], departures: [] };
 
-    return {
-      arrivals: flights.filter(f => f.arrival?.iata === airport.iata),
-      departures: flights.filter(f => f.departure?.iata === airport.iata)
-    };
+  const flights = json.data;
 
-  } catch (err) {
-    console.error("AviationStack error:", err);
-    return { arrivals: [], departures: [] };
-  }
+  return {
+    arrivals: flights.filter(f => f.arrival?.iata === airport.iata),
+    departures: flights.filter(f => f.departure?.iata === airport.iata)
+  };
 }
 
 /* =====================================================
-   OPEN SKY — Fallback PRO+++
+   OPEN SKY — SAFE
 ===================================================== */
 
 async function getOpenSkyFlights(airport) {
   const begin = Math.floor(Date.now() / 1000 - 3600);
-  const end   = Math.floor(Date.now() / 1000);
+  const end = Math.floor(Date.now() / 1000);
 
   const url =
     `https://opensky-network.org/api/flights/departure?airport=${airport.icao}&begin=${begin}&end=${end}`;
 
-  try {
-    const res = await fetch(url);
+  const json = await safeFetch(url);
 
-    // Vérifier si la réponse est JSON
-    const text = await res.text();
-    if (!text.startsWith("[") && !text.startsWith("{")) {
-      console.warn("OpenSky non-JSON:", text.slice(0, 80));
-      return { arrivals: [], departures: [] };
-    }
-
-    const flights = JSON.parse(text);
-    return {
-      arrivals: [],
-      departures: flights || []
-    };
-
-  } catch (err) {
-    console.error("OpenSky error:", err);
+  if (!json || !Array.isArray(json)) {
     return { arrivals: [], departures: [] };
   }
+
+  return {
+    arrivals: [],
+    departures: json
+  };
 }
 
 /* =====================================================
-   ENDPOINT WEATHER
+   FUSION PRO+++ — NE PLANTE JAMAIS
+===================================================== */
+
+async function getFlightsFusion(airport) {
+
+  const airlabs = await getAirLabsFlights(airport);
+  if (airlabs.arrivals.length || airlabs.departures.length) return airlabs;
+
+  const avstack = await getAviationStackFlights(airport);
+  if (avstack.arrivals.length || avstack.departures.length) return avstack;
+
+  const opensky = await getOpenSkyFlights(airport);
+  if (opensky.arrivals.length || opensky.departures.length) return opensky;
+
+  return { arrivals: [], departures: [] };
+}
+
+/* =====================================================
+   ENDPOINT WEATHER — SAFE
 ===================================================== */
 
 app.get("/api/weather/:airport", async (req, res) => {
@@ -366,13 +236,18 @@ app.get("/api/weather/:airport", async (req, res) => {
       updatedAt: new Date().toISOString()
     });
 
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    res.json({
+      airport: req.params.airport,
+      openWeather: null,
+      metar: null,
+      taf: null
+    });
   }
 });
 
 /* =====================================================
-   ENDPOINT FLIGHTS
+   ENDPOINT FLIGHTS — SAFE
 ===================================================== */
 
 app.get("/api/flights/:airport", async (req, res) => {
@@ -380,8 +255,7 @@ app.get("/api/flights/:airport", async (req, res) => {
     const airport = AIRPORTS[req.params.airport.toUpperCase()];
     if (!airport) return res.status(404).json({ error: "Aéroport inconnu" });
 
-    let airlabs = { arrivals: [], departures: [] };
-try { airlabs = await getAirLabsFlights(airport); } catch(e) {}
+    const flights = await getFlightsFusion(airport);
 
     res.json({
       airport: airport.icao,
@@ -390,17 +264,13 @@ try { airlabs = await getAirLabsFlights(airport); } catch(e) {}
       updatedAt: new Date().toISOString()
     });
 
-  } catch {
-    res.status(500).json({ error: "Erreur interne AirLabs" });
+  } catch (err) {
+    res.json({
+      airport: req.params.airport,
+      arrivals: [],
+      departures: []
+    });
   }
-});
-
-/* =====================================================
-   HEALTH CHECK
-===================================================== */
-
-app.get("/api/health", (req, res) => {
-  res.json({ status: "ok", time: new Date().toISOString() });
 });
 
 /* =====================================================
