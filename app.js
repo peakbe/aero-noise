@@ -1,0 +1,412 @@
+// app.js — logique ND / météo / vols PRO+++
+
+import { initMap, resetMapView, addAirportMarker, updateSono } from "./map.js";
+
+// =====================================================
+// CONFIG — API Railway
+// =====================================================
+
+const API_BASE = "https://aero-noise-production.up.railway.app";
+
+// =====================================================
+// 1) INITIALISATION
+// =====================================================
+
+document.addEventListener("DOMContentLoaded", () => {
+  initMap();
+  initUI();
+  loadAirport("EBLG"); // aéroport par défaut
+});
+
+// =====================================================
+// 2) UI — Boutons, sélection aéroport
+// =====================================================
+
+function initUI() {
+
+  const btn = document.getElementById("btn-recenter");
+  if (btn) btn.addEventListener("click", () => resetMapView());
+
+  const selector = document.getElementById("airport-select");
+  if (selector) {
+    selector.addEventListener("change", (e) => {
+      loadAirport(e.target.value);
+    });
+  }
+}
+
+document.getElementById("btn-refresh").addEventListener("click", () => {
+  loadAirport(window.currentAirportKey);
+});
+
+let sonoEnabled = true;
+
+document.getElementById("btn-sono").addEventListener("click", () => {
+  sonoEnabled = !sonoEnabled;
+
+  if (!sonoEnabled) {
+    if (window.map && window.sonoLayer) window.sonoLayer.clearLayers();
+  } else {
+    const rwy = document.getElementById("mcdu-rwy").textContent.replace("RWY ", "");
+    updateSono(window.currentAirportKey, rwy);
+  }
+});
+
+// =====================================================
+// 3) Charger un aéroport
+// =====================================================
+
+async function loadAirport(key) {
+  try {
+    setCurrentAirport(key);
+    resetMapView();
+    addAirportMarker(key);
+
+    await Promise.all([
+      loadWeather(key),
+      loadFlights(key)
+    ]);
+
+  } catch (err) {
+    console.error("Erreur loadAirport:", err);
+  }
+}
+
+// =====================================================
+// 4) setCurrentAirport
+// =====================================================
+
+export function setCurrentAirport(key) {
+  if (!window.airports[key]) return;
+
+  window.currentAirportKey = key;
+  resetMapView();
+
+  const rwyBox = document.getElementById("mcdu-rwy");
+
+  let rwy = "24";
+  if (rwyBox && rwyBox.textContent.includes("RWY")) {
+    rwy = rwyBox.textContent.replace("RWY ", "");
+  }
+
+  updateSono(key, rwy);
+}
+
+// =====================================================
+// 5) Charger météo
+// =====================================================
+
+async function loadWeather(key) {
+  try {
+    const url = `${API_BASE}/api/weather/${key}`;
+
+    const res = await fetch(url);
+    const data = await res.json();
+
+    updateWeatherUI(data);
+    updateMCDU(data);
+
+  } catch (err) {
+    console.error("Erreur météo:", err);
+  }
+}
+
+// =====================================================
+// 6) Charger vols
+// =====================================================
+
+async function loadFlights(key) {
+  try {
+    const url = `${API_BASE}/api/flights/${key}`;
+
+    const res = await fetch(url);
+    const data = await res.json();
+
+    updateFlightsUI(data);
+    updateSidebarFids(data);
+
+  } catch (err) {
+    console.error("Erreur vols:", err);
+  }
+}
+
+// =====================================================
+// 7) UI METAR / TAF / WX
+// =====================================================
+
+function updateWeatherUI(data) {
+  const metarBox = document.getElementById("metar-box");
+  const tafBox = document.getElementById("taf-box");
+  const weatherBox = document.getElementById("weather-box");
+
+  if (data.metar) {
+    const kt = data.metar.wspd || 0;
+    const ms = ktToMs(kt);
+    metarBox.innerHTML = `
+      ${data.metar.rawOb}<br>
+      <span style="color:#32ff7e">Vent: ${kt} kt (${ms} m/s)</span>
+    `;
+  } else {
+    metarBox.textContent = "METAR indisponible";
+  }
+
+  if (data.taf) {
+    tafBox.textContent = data.taf.rawTAF || "TAF indisponible";
+  } else {
+    tafBox.textContent = "TAF indisponible";
+  }
+
+  if (data.openWeather) {
+    const w = data.openWeather;
+    weatherBox.innerHTML = `
+      Temp: ${w.main.temp}°C<br>
+      Vent: ${w.wind.speed} m/s<br>
+      Humidité: ${w.main.humidity}%<br>
+      Ciel: ${w.weather[0].description}
+    `;
+  } else {
+    weatherBox.textContent = "Météo indisponible";
+  }
+}
+
+// =====================================================
+// 8) UI FIDS
+// =====================================================
+
+function updateFlightsUI(data) {
+  const arrBox = document.getElementById("arrivals-box");
+  const depBox = document.getElementById("departures-box");
+
+  arrBox.innerHTML = (data.arrivals || [])
+    .map(f => {
+      const flight = f.flight_iata || f.flight_icao || f.callsign || "—";
+      const route = `${f.dep_iata || f.dep_icao || "??"} → ${f.arr_iata || f.arr_icao || "??"}`;
+
+      const arrTime =
+        f.arr_time ||
+        f.arr_time_utc ||
+        f.scheduled_arrival_time ||
+        f.arrival?.scheduled ||
+        f.arrival?.estimated ||
+        f.arrival?.actual ||
+        "";
+
+      return `
+        <div>
+          <span>${flight}</span>
+          <span>${route}</span>
+          <span>${arrTime}</span>
+        </div>
+      `;
+    })
+    .join("") || "Aucune arrivée";
+
+  depBox.innerHTML = (data.departures || [])
+    .map(f => {
+      const flight = f.flight_iata || f.flight_icao || f.callsign || "—";
+      const route = `${f.dep_iata || f.dep_icao || "??"} → ${f.arr_iata || f.arr_icao || "??"}`;
+
+      const depTime =
+        f.dep_time ||
+        f.dep_time_utc ||
+        f.scheduled_departure_time ||
+        f.departure?.scheduled ||
+        f.departure?.estimated ||
+        f.departure?.actual ||
+        "";
+
+      return `
+        <div>
+          <span>${flight}</span>
+          <span>${route}</span>
+          <span>${depTime}</span>
+        </div>
+      `;
+    })
+    .join("") || "Aucun départ";
+}
+
+// =====================================================
+// 9) Sidebar FIDS
+// =====================================================
+
+function updateSidebarFids(data) {
+  const arrEl = document.getElementById("mcdu-fids-arr");
+  const depEl = document.getElementById("mcdu-fids-dep");
+
+  if (!arrEl || !depEl) return;
+
+  const arrivals = (data.arrivals || []).slice(0, 10);
+  const departures = (data.departures || []).slice(0, 10);
+
+  arrEl.innerHTML = arrivals.map(f => {
+    const status = (f.status || f.live?.status || "").toLowerCase();
+
+    const arrTime =
+      f.arr_time ||
+      f.arr_time_utc ||
+      f.scheduled_arrival_time ||
+      f.arrival?.scheduled ||
+      f.arrival?.estimated ||
+      f.arrival?.actual ||
+      "";
+
+    let cls = "mcdu-fids-row";
+    if (status.includes("delay")) cls += " mcdu-fids-delay";
+    if (status.includes("cancel")) cls += " mcdu-fids-cancel";
+
+    return `
+      <div class="${cls}">
+        <span>${f.flight_iata || f.flight_icao || f.callsign || "—"}</span>
+        <span>${f.dep_iata || f.dep_icao || "??"} → ${f.arr_iata || f.arr_icao || "??"}</span>
+        <span>${arrTime}</span>
+      </div>
+    `;
+  }).join("");
+
+  depEl.innerHTML = departures.map(f => {
+    const status = (f.status || f.live?.status || "").toLowerCase();
+
+    const depTime =
+      f.dep_time ||
+      f.dep_time_utc ||
+      f.scheduled_departure_time ||
+      f.departure?.scheduled ||
+      f.departure?.estimated ||
+      f.departure?.actual ||
+      "";
+
+    let cls = "mcdu-fids-row";
+    if (status.includes("delay")) cls += " mcdu-fids-delay";
+    if (status.includes("cancel")) cls += " mcdu-fids-cancel";
+
+    return `
+      <div class="${cls}">
+        <span>${f.flight_iata || f.flight_icao || f.callsign || "—"}</span>
+        <span>${f.dep_iata || f.dep_icao || "??"} → ${f.arr_iata || f.arr_icao || "??"}</span>
+        <span>${depTime}</span>
+      </div>
+    `;
+  }).join("");
+}
+
+// =====================================================
+// Conversion kt → m/s
+// =====================================================
+
+function ktToMs(kt) {
+  return (kt * 0.514444).toFixed(1);
+}
+
+// =====================================================
+// MCDU — WIND / RWY / TAF / ROSE ND
+// =====================================================
+
+function updateMCDU(data) {
+  const windBox = document.getElementById("mcdu-wind");
+  const windMsBox = document.getElementById("mcdu-wind-ms");
+  const rwyBox = document.getElementById("mcdu-rwy");
+  const trendBox = document.getElementById("mcdu-trend");
+
+  const wdir = data.metar?.wdir;
+  const wspd = data.metar?.wspd;
+
+  if (wdir !== undefined && wspd !== undefined) {
+    const wspdMs = ktToMs(wspd);
+    windBox.textContent = `WIND ${wdir}° / ${wspd}KT (${wspdMs} m/s)`;
+    windMsBox.textContent = `WIND SPEED: ${wspdMs} m/s`;
+  } else {
+    windBox.textContent = "WIND ---";
+    windMsBox.textContent = "WIND SPEED: ---";
+  }
+
+  let rwy = "---";
+  if (wdir !== undefined) {
+    rwy = computeRunwayFromWind(wdir, window.currentAirportKey);
+    rwyBox.textContent = `RWY ${rwy}`;
+  } else {
+    rwyBox.textContent = "RWY ---";
+  }
+
+  const taf = data.taf?.rawTAF || "";
+  trendBox.textContent = extractTrends(taf);
+
+  drawWindRose(wdir, wspd);
+
+  updateSono(window.currentAirportKey, rwy);
+}
+
+// =====================================================
+// TAF — Extraction tendances
+// =====================================================
+
+function extractTrends(rawTAF) {
+  if (!rawTAF) return "NO TREND";
+
+  const blocks = rawTAF.match(/(BECMG|TEMPO|PROB\d+|FM\d+|TL\d+|AT\d+)[^A-Z]*/g);
+  if (!blocks) return "NO TREND";
+
+  return blocks.join(" | ");
+}
+
+// =====================================================
+// RWY FROM WIND
+// =====================================================
+
+function computeRunwayFromWind(wdir, airportKey) {
+  const ap = window.AIRPORTS?.[airportKey];
+  if (!ap || !ap.runways) return "---";
+
+  let bestRunway = "---";
+  let bestDiff = 999;
+
+  ap.runways.forEach(r => {
+    const diff = Math.abs(wdir - r.heading);
+    if (diff < bestDiff) {
+      bestDiff = diff;
+      bestRunway = r.id;
+    }
+  });
+
+  return bestRunway;
+}
+
+// =====================================================
+// ROSE ND AIRBUS
+// =====================================================
+
+function drawWindRose(wdir, wspd) {
+  const canvas = document.getElementById("mcdu-rose");
+  const ctx = canvas.getContext("2d");
+
+  ctx.clearRect(0, 0, 220, 220);
+
+  ctx.strokeStyle = "#00e5ff";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(110, 110, 90, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(110, 20);
+  ctx.lineTo(110, 200);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(20, 110);
+  ctx.lineTo(200, 110);
+  ctx.stroke();
+
+  if (wdir !== undefined) {
+    const rad = (wdir - 90) * Math.PI / 180;
+    const x = 110 + Math.cos(rad) * 70;
+    const y = 110 + Math.sin(rad) * 70;
+
+    ctx.strokeStyle = "#32ff7e";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(110, 110);
+    ctx.lineTo(x, y);
+    ctx.stroke();
+  }
+}
