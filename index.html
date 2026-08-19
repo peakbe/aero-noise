@@ -2,32 +2,37 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Dashboard ND / METAR / FIDS</title>
+  <title>ND / MCDU / METAR / FIDS — Airbus A320 PRO+++</title>
 
+  <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+  <!-- Style Jeppesen PRO+++ -->
   <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
 
-  <!-- SIDEBAR MCDU — Jeppesen PRO+++ -->
+  <!-- ================================
+       SIDEBAR MCDU — Airbus A320 PRO+++
+  ================================= -->
   <div id="sidebar-mcdu">
 
-    <!-- Titre avionique -->
     <div class="mcdu-title">MCDU / ND — Jeppesen PRO+++</div>
 
     <!-- WIND -->
     <div id="mcdu-wind" class="mcdu-box"></div>
 
-    <!-- RWY ACTIVE -->
+    <!-- RWY -->
     <div id="mcdu-rwy" class="mcdu-box"></div>
 
-    <!-- TENDANCES TAF -->
+    <!-- TAF TRENDS -->
     <div id="mcdu-trend" class="mcdu-box"></div>
 
+    <!-- WIND SPEED (m/s) -->
     <div id="mcdu-wind-ms" class="mcdu-box"></div>
 
-    <!-- ROSE DES VENTS ND AIRBUS -->
+    <!-- ROSE ND -->
     <canvas id="mcdu-rose" width="220" height="220"></canvas>
 
     <!-- APT SELECTOR -->
@@ -43,24 +48,29 @@
     <div id="mcdu-buttons-container">
       <button id="btn-recenter" class="mcdu-btn">RCL</button>
       <button id="btn-refresh" class="mcdu-btn">REFRESH</button>
-      <button id="btn-sono" class="mcdu-btn">SONO</button>    
+      <button id="btn-sono" class="mcdu-btn">SONO</button>
     </div>
-    
-<!-- FIDS CONFIRMÉS — Airbus ND style -->
-<div class="mcdu-box mcdu-fids">
-  <div class="mcdu-fids-title">ARRIVALS — 10 CONFIRMED</div>
-  <div id="mcdu-fids-arr"></div>
 
-  <div class="mcdu-fids-title">DEPARTURES — 10 CONFIRMED</div>
-  <div id="mcdu-fids-dep"></div>
-</div>
+    <!-- FIDS CONFIRMÉS -->
+    <div class="mcdu-box mcdu-fids">
+      <div class="mcdu-fids-title">ARRIVALS — 10 CONFIRMED</div>
+      <div id="mcdu-fids-arr"></div>
+
+      <div class="mcdu-fids-title">DEPARTURES — 10 CONFIRMED</div>
+      <div id="mcdu-fids-dep"></div>
+    </div>
 
   </div>
 
-  <!-- ✔ La carte ND doit être en dehors de la sidebar -->
+  <!-- ================================
+       ND MAP — Airbus Navigation Display
+  ================================= -->
   <div id="map"></div>
 
-  <!-- PANELS METAR / TAF / WX / FIDS -->
+  <!-- ================================
+       PANELS METAR / TAF / WX / FIDS
+  ================================= -->
+
   <div class="panel">
     <h2>METAR</h2>
     <div id="metar-box" class="data-box"></div>
@@ -77,15 +87,18 @@
   </div>
 
   <div class="panel">
-    <h2>Arrivées (AirLabs)</h2>
+    <h2>Arrivées (FUSION AirLabs / AviationStack / OpenSky)</h2>
     <div id="arrivals-box" class="data-box"></div>
   </div>
 
   <div class="panel">
-    <h2>Départs (AirLabs)</h2>
+    <h2>Départs (FUSION AirLabs / AviationStack / OpenSky)</h2>
     <div id="departures-box" class="data-box"></div>
   </div>
 
+  <!-- ================================
+       SCRIPTS
+  ================================= -->
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script type="module" src="map.js"></script>
   <script type="module" src="app.js"></script>
