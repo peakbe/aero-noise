@@ -1,6 +1,8 @@
 {
   "build": {
-    "builder": "DOCKERFILE"
+    "builder": "DOCKERFILE",
+    "dockerfilePath": "backend/Dockerfile",
+    "context": "backend"
   },
   "deploy": {
     "restartPolicyType": "ON_FAILURE"
