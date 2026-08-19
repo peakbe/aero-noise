@@ -257,28 +257,39 @@ app.get("/api/weather/:airport", async (req, res) => {
 });
 
 /* =====================================================
-   ENDPOINT FLIGHTS — SAFE
+   ENDPOINT FLIGHTS — SAFE PRO+++
 ===================================================== */
 
 app.get("/api/flights/:airport", async (req, res) => {
   try {
-    const airport = AIRPORTS[req.params.airport.toUpperCase()];
-    if (!airport) return res.status(404).json({ error: "Aéroport inconnu" });
+    const code = req.params.airport.toUpperCase();
+    const airport = AIRPORTS[code];
+
+    if (!airport) {
+      return res.status(404).json({ error: "Aéroport inconnu", code });
+    }
 
     const flights = await getFlightsFusion(airport);
 
+    // Sécurité : si flights est null ou mal formé
+    const arrivals = flights?.arrivals || [];
+    const departures = flights?.departures || [];
+
     res.json({
       airport: airport.icao,
-      arrivals: flights.arrivals,
-      departures: flights.departures,
+      arrivals,
+      departures,
       updatedAt: new Date().toISOString()
     });
 
   } catch (err) {
-    res.json({
+    console.error("Erreur API flights:", err); // LOG Railway
+
+    res.status(500).json({
       airport: req.params.airport,
       arrivals: [],
-      departures: []
+      departures: [],
+      error: "Erreur interne API flights"
     });
   }
 });
